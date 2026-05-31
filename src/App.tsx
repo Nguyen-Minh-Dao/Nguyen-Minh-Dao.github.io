@@ -855,7 +855,7 @@ export default function App() {
             </div>
             <div className="w-2/4 sm:w-1/3 text-xs sm:text-sm font-semibold text-neutral-400 flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden">
               <LayoutTemplate size={14} className="shrink-0" /> 
-              <span className="truncate">Nguyễn Minh Đạo - 25022158</span>
+              <span className="truncate">Portfolio</span>
             </div>
             <div className="flex w-1/4 sm:w-1/3 justify-end">
               {activeTab === 'project_detail' && (
@@ -873,20 +873,19 @@ export default function App() {
             {activeTab === 'home' && (
               <div className="p-8 md:p-12 space-y-10 max-w-6xl mx-auto">
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mt-2">
-                  <div className="w-20 h-20 rounded-full mb-3 shrink-0 overflow-hidden border-2 border-[#ff00ff] shadow-[0_0_15px_#ff00ff,0_0_30px_rgba(255,0,255,0.6)] flex items-center justify-center bg-black/40">
+                  <div className="w-40 h-40 rounded-full mb-3 shrink-0 overflow-hidden border-2 border-[#ff00ff] shadow-[0_0_15px_#ff00ff,0_0_30px_rgba(255,0,255,0.6)] flex items-center justify-center bg-black/40">
                       <img 
                           src="https://i.postimg.cc/Mpsf6x9B/bo-mau-be.png" 
                           alt="Trần Long"
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            // Dự phòng: Nếu link ảnh lỗi, tự động hiển thị lại chữ "TL" nhưng vẫn giữ vòng sáng Lightsaber
                             e.currentTarget.outerHTML = '<span class="text-white text-2xl font-bold">TL</span>';
                           }}
                         />
                   </div>
                   <div className="space-y-4 text-center md:text-left overflow-hidden">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-white whitespace-nowrap overflow-hidden text-ellipsis">
-                      <AnimatedText text="Portfolio" />
+                      <AnimatedText text="Nguyễn Minh Đạo - 25022158" />
                     </h1>
                     <ScrollReveal delay={0.4}>
                       <h2 className="text-xl md:text-2xl text-blue-400 font-medium">
@@ -910,7 +909,6 @@ export default function App() {
                            <div className="h-40 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-white/10 relative shrink-0">
                               <img src={proj.img} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                            </div>
-                           {/* Xóa class line-clamp-2 để hiển thị toàn bộ tiêu đề */}
                            <h4 className="text-lg font-bold text-white mb-2 leading-snug">{proj.title}</h4>
                            <p className="text-neutral-400 flex-1 text-sm line-clamp-3">{proj.desc}</p>
                            <div className="mt-4 flex items-center text-blue-400 text-sm font-medium shrink-0">
