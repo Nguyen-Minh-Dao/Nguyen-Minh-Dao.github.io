@@ -583,14 +583,90 @@ export default function App() {
         {
           type: 'step',
           heading: '2. Giới thiệu dự án & Mục tiêu',
-          text: 'Mục tiêu của dự án không chỉ là dịch thuật đơn thuần, mà là tạo ra một bài viết hoàn chỉnh bằng tiếng Việt, có giọng văn gần gũi, dễ hiểu với người đọc Việt Nam, đồng thời bổ sung mẹo thực tế từ trải nghiệm cá nhân.',
-          images: [
-            'https://images.unsplash.com/photo-1514326640560-7d063ef2aed5?auto=format&fit=crop&q=80&w=1200'
+          content: [
+            {
+              text: 'Dự án này là một bài viết hướng dẫn nấu ăn hoàn chỉnh về món Gà Rán Giòn Tại Nhà, được xây dựng dựa trên công thức gốc của Chef Joshua Weissman (joshuaweissman.com). Mục tiêu của dự án không chỉ là dịch thuật đơn thuần, mà là tạo ra một bài viết hoàn chỉnh bằng tiếng Việt, có giọng văn gần gũi, dễ hiểu với người đọc Việt Nam, đồng thời bổ sung mẹo thực tế từ trải nghiệm cá nhân.'
+            },
+            {
+              text: 'Để hoàn thiện sản phẩm, ba nhóm công cụ AI đã được sử dụng kết hợp: (1) Claude cho việc dịch thuật, tinh chỉnh văn phong và cấu trúc bài viết; (2) Gemini của Google cho việc sáng tạo tiêu đề và mô tả hấp dẫn; (3) Canva AI cho việc thiết kế hình ảnh minh họa phù hợp với nội dung ẩm thực.',
+              images: [
+                'https://images.unsplash.com/photo-1514326640560-7d063ef2aed5?auto=format&fit=crop&q=80&w=1200'
+              ]
+            }
           ]
         },
         {
           type: 'step',
-          heading: '3. Mẹo hay từ đầu bếp',
+          heading: '2. Nguyên liệu',
+          content: [
+            {
+              text: 'Phần gà và nước ướp:',
+              text: '                  1 con gà nguyên con (khoảng 1,5 – 2 kg) – hoặc thay bằng 1 kg đùi/cánh gà tùy sở thích',
+              text: '                  480 ml sữa buttermilk (hoặc thay bằng sữa tươi + 1 muỗng canh giấm, để 10 phút)',
+              text: '                  2 muỗng canh muối hạt (kosher salt hoặc muối biển)',
+              text: '                  1 muỗng cà phê đường',
+              text: '                  1,5 muỗng cà phê bột ngọt (MSG) – tùy chọn, giúp tăng umami',
+              text: '                  1 muỗng canh bột tỏi',
+              text: '                  2 muỗng cà phê ớt paprika xông khói (smoked paprika)',
+              text: '                  1 muỗng cà phê bột ớt cayenne'
+            },
+            {
+              text: 'Phần áo bột và chiên:',
+              text: '3,3 lít dầu thực vật hoặc dầu hướng dương (để chiên ngập)',
+              text: '375 g bột mì đa dụng',
+              text: '60 g bột khoai tây hoặc bột bắp (giúp lớp vỏ giòn hơn)',
+              text: '1 muỗng canh muối hạt',
+              text: '1 muỗng cà phê bột ngọt',
+              text: '1 muỗng cà phê bột ớt cayenne',
+              text: '1 muỗng cà phê bột tỏi',
+              text: '½ muỗng cà phê bột hành tây',
+              text: '2 muỗng cà phê tiêu đen xay thô',
+              text: '1 muỗng cà phê lá oregano sấy khô'
+            },
+            {
+              images: [
+                'https://i.postimg.cc/WzHW0x8p/image.png'
+              ]
+            }
+          ]
+        },
+        {
+          type: 'step',
+          heading: '4. Sơ chế gà',
+          content: [
+            {
+              text: 'Đặt gà ngửa, dùng dao nhỏ sắc rạch qua phần da nối giữa đùi và ngực. Lật gà lại, bẻ phần đùi ra phía sau cho đến khi khớp bật ra. Cắt theo đường mỡ để tách rời đùi gà. Tiếp tục bẻ và cắt để tách đùi ra thành phần đùi trên (thigh) và chân (drumstick).',
+              text: 'Tách cánh gà tương tự: kéo cánh ra, bẻ cho khớp bật, rồi cắt theo đường mỡ để tách hoàn toàn.',
+              text: 'Dùng dao chặt lấy ức gà: lấy xương sống ra trước, sau đó lách dao dọc theo xương ức để tách từng miếng ức. Phần xương cốt có thể dùng để nấu nước dùng.',
+              text: 'Pha hỗn hợp nước ướp: trộn đều buttermilk, muối, đường, bột ngọt (nếu dùng), bột tỏi, paprika và cayenne trong một tô lớn. Ngâm gà vào, đảm bảo nước ướp thấm cả dưới da. Bọc kín và để tủ lạnh ít nhất 1 giờ, tốt nhất là qua đêm (tối đa 2 ngày).'
+            }
+          ]
+        },
+        {
+          type: 'step',
+          heading: '5. Tẩm bột',
+          content: [
+            {
+              text: 'Trộn đều bột mì, bột khoai tây, muối, bột ngọt, cayenne, bột tỏi, bột hành, tiêu và oregano trong một tô lớn.',
+              text: 'Lấy gà ra khỏi nước ướp, để ráo trên vỉ. Múc ⅓ chén hỗn hợp bột vào nước ướp còn lại, khuấy đều. Nhúng tay vào nước ướp đặc này, vảy từng chút nhỏ vào bột khô rồi trộn đều – lặp lại 2 lần nữa để tạo ra những mảnh bột vụn nhỏ (đây là bí quyết tạo lớp vỏ sần sùi giòn rụm!).',
+              text: 'Nhúng từng miếng gà vào nước ướp đặc, rồi lăn qua hỗn hợp bột, ấn nhẹ để bột bám đều, kể cả dưới da. Để riêng trên khay.'
+            }
+          ]
+        },
+        {
+          type: 'step',
+          heading: '6. Chiên gà',
+          content: [
+            {
+              text: 'Đun dầu trong nồi đáy dày (khoảng 7 lít) đến 177°C (350°F). Nên chia chiên thành 2–3 mẻ để dầu không bị nguội đột ngột.',
+              text: 'Chiên gà từng mẻ, không để nồi quá chật. Mảnh nhỏ (cánh, chân): 10–15 phút; mảnh lớn (đùi, ức): 15–20 phút. Duy trì nhiệt độ dầu 163–177°C. Gà chín khi có màu vàng nâu đẹp và nhiệt kế cắm vào phần dày nhất đọc 74°C (165°F).',
+              text: 'Vớt gà ra để ráo trên vỉ, đặt trên khay giấy thấm dầu. Để nguội 2–3 phút rồi dùng ngay.'
+            }
+          ]
+        },
+        {
+          type: 'step',
+          heading: '7. Mẹo hay từ đầu bếp',
           text: 'Bí quyết tạo lớp vỏ sần sùi giòn rụm: Múc vài muỗng nước ướp đặc vào hỗn hợp bột khô, vảy và trộn đều để tạo ra những mảnh bột vụn nhỏ trước khi lăn gà. Ngoài ra, đừng bỏ qua "oyster meat" - phần ngon nhất của con gà!',
           images: [
             'https://images.unsplash.com/photo-1589301773954-473d0dce14e7?auto=format&fit=crop&q=80&w=1200'
