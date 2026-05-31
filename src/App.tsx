@@ -497,7 +497,7 @@ export default function App() {
           items: [
             { label: 'Họ và tên', value: 'Nguyễn Minh Đạo' },
             { label: 'Mã sinh viên', value: '25022158' },
-            { label: 'Nhóm', value: '17 – 7Teen' }
+            { label: 'Nhóm', value: '17' }
           ]
         },
         {
@@ -513,20 +513,29 @@ export default function App() {
         {
           type: 'step',
           heading: 'II. Trải nghiệm sử dụng công cụ trực tuyến',
-          text: 'Trong bối cảnh làm việc nhóm trực tuyến ngày càng trở nên phổ biến, việc nắm vững và vận dụng linh hoạt các công cụ cộng tác là kỹ năng không thể thiếu. Sự kết hợp của 4 công cụ này giúp tối ưu hóa hiệu suất cá nhân. Messenger được chọn làm không gian giao tiếp chính nhờ tính phổ biến. Tôi đã tham gia thảo luận cực kỳ sôi nổi, đóng góp ý kiến (hơn 10 lượt/tuần). Tôi chủ động gửi các liên kết (link) tài liệu từ Google Drive, nhắc nhở deadline từ Planner, và sẵn sàng hỗ trợ khi thành viên khác gặp khó khăn.',
+          text: 'Ngay từ giai đoạn khởi động dự án, tôi đã tham gia thiết lập không gian làm việc trên Microsoft Planner. Thay vì chỉ liệt kê công việc một cách đơn thuần, tôi đã áp dụng phương pháp Kanban, chia dự án thành các nhóm công việc cụ thể như: To-do, Doing, và Done.',
           images: [
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+1]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+2]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+3]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+4]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+5]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+6]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+7]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+8]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+9]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+10]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+11]',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+12]'
+            'https://i.postimg.cc/LXWhGN0F/image.png',
+            'https://i.postimg.cc/J795kq4W/image.png'
+          ],
+          text: 'Nhận thức được tầm quan trọng của việc quản lý dữ liệu, tôi đã chủ động đề xuất và thiết lập hệ thống lưu trữ trên Google Drive. Tôi đã tạo ra một cấu trúc thư mục với nhiều cấp độ để tránh tình trạng lộn xộn khi số lượng tệp tin tăng lên.',
+          text: 'Đặc biệt, các tệp tin được tải lên đều tuân thủ quy tắc đặt tên thống nhất: Tên Dự Án_Tên Người Làm_Tên Tài Liệu. Để bảo vệ dữ liệu nhưng vẫn đảm bảo sự phối hợp, tôi đã thiết lập quyền truy cập: cấp quyền "Người chỉnh sửa" cho các thành viên nhóm và "Người xem" cho các đối tượng khác.',
+          images: [
+            'https://i.postimg.cc/tJhZPF2G/image.png',
+            'https://i.postimg.cc/HkWcccMZ/image.png',
+            'https://i.postimg.cc/vmkcN0NJ/image.png',
+            'https://i.postimg.cc/8cVs1jDZ/image.png'
+          ],
+          text: 'Tôi không chỉ viết phần kịch bản được giao mà còn theo dõi và góp ý cho các thành viên khác. Tôi đã tận dụng tính năng "Nhận xét" để highlight các đoạn cần chỉnh sửa và tag thành viên để họ nhận được thông báo ngay lập tức.',
+          images: [
+            'https://i.postimg.cc/qv7qMfVB/image.png',
+            'https://i.postimg.cc/vmgmfWZv/image.png'
+          ],
+          text: 'Messenger được chọn làm không gian giao tiếp chính nhờ tính phổ biến. Tôi đã tham gia thảo luận cực kỳ sôi nổi, đóng góp ý kiến (hơn 10 lượt/tuần). Tôi chủ động gửi các liên kết (link) tài liệu từ Google Drive, nhắc nhở deadline từ Planner, và sẵn sàng hỗ trợ khi thành viên khác gặp khó khăn.',
+          images: [
+            'https://i.postimg.cc/y6X8m67B/image.png',
+            'https://i.postimg.cc/dt5QfWkK/image.png',
+            'https://i.postimg.cc/qRHpKSYc/image.png'
           ]
         },
         {
