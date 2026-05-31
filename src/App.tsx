@@ -407,12 +407,12 @@ export default function App() {
             { label: 'Tạo câu hỏi', value: 'Tạo bộ câu hỏi ôn tập cho một chủ đề.' }
           ],
           images: [
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+1]+Tóm+tắt+cơ+bản',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+2]+Tóm+tắt+cơ+bản',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+3]+Giải+thích+cơ+bản',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+4]+Giải+thích+cơ+bản',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+5]+Tạo+câu+hỏi+cơ+bản',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+6]+Tạo+câu+hỏi+cơ+bản'
+            'https://i.postimg.cc/7PSmX0TX/image.png',
+            'https://i.postimg.cc/RC1Lwmk4/image.png',
+            'https://i.postimg.cc/1thDN7Mr/image.png',
+            'https://i.postimg.cc/tCCWPxdS/image.png',
+            'https://i.postimg.cc/bw4tKFXf/image.png',
+            'https://i.postimg.cc/1tQNzn5v/image.png'
           ]
         },
         {
@@ -424,14 +424,14 @@ export default function App() {
             { label: 'Tạo câu hỏi', value: 'Áp dụng định dạng khắt khe để AI phân bổ đúng trọng số chú ý.' }
           ],
           images: [
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+7]+Tóm+tắt+cải+tiến',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+8]+Tóm+tắt+cải+tiến',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+9]+Giải+thích+cải+tiến',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+10]+Giải+thích+cải+tiến',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+11]+Giải+thích+cải+tiến',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+12]+Giải+thích+cải+tiến',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+13]+Tạo+câu+hỏi+cải+tiến',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+14]+Tạo+câu+hỏi+cải+tiến'
+            'https://i.postimg.cc/QdKBkkFM/image.png',
+            'hhttps://i.postimg.cc/25p1HbvS/image.png',
+            'https://i.postimg.cc/Hxzjs6hq/image.png',
+            'https://i.postimg.cc/8kys2nWW/image.png',
+            'https://i.postimg.cc/GhVt28Xd/image.png',
+            'https://i.postimg.cc/nLtLK88P/image.png',
+            'https://i.postimg.cc/gJzk5v0p/image.png',
+            'https://i.postimg.cc/NFVs5Skw/image.png'
           ]
         },
         {
@@ -439,12 +439,18 @@ export default function App() {
           heading: '3. Phân tích Prompt nâng cao',
           items: [
             { label: 'Tóm tắt nâng cao', value: 'Cung cấp yêu cầu "phải cung cấp phần giải thích chi tiết" để kích hoạt Chain-of-Thought.' }
+            { label: 'Giải thích khái niệm', value: 'Yêu cầu áp dụng phương pháp First Principles (Tư duy nguyên bản) để bóc tách và đơn giản hóa các thuật ngữ.' },
+            { label: 'Tạo câu hỏi', value: 'Áp dụng Prompt cấu trúc theo thang đo Bloom và yêu cầu AI suy luận từng bước (Step-by-step) cho mỗi lựa chọn.' }
           ],
           images: [
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+15]+Prompt+nâng+cao',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+16]+Prompt+nâng+cao',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+17]+Prompt+nâng+cao',
-            'https://placehold.co/800x400/1e1e1e/fff?text=[Image+18]+Prompt+nâng+cao'
+            'https://i.postimg.cc/GmPRCHVc/image.png',
+            'https://i.postimg.cc/yxJB4n4P/image.png',
+            'https://i.postimg.cc/J0BwdnjC/image.png',
+            'https://i.postimg.cc/BZdtZPYG/image.png',
+            'https://i.postimg.cc/3RSgLjT5/image.png',
+            'https://i.postimg.cc/zBBhRLgJ/image.png',
+            'https://i.postimg.cc/dtd50XF5/image.png',
+            'https://i.postimg.cc/zvhFVL94/image.png'
           ]
         },
         {
