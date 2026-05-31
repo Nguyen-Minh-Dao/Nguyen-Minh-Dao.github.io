@@ -425,7 +425,7 @@ export default function App() {
           ],
           images: [
             'https://i.postimg.cc/QdKBkkFM/image.png',
-            'hhttps://i.postimg.cc/25p1HbvS/image.png',
+            'https://i.postimg.cc/25p1HbvS/image.png',
             'https://i.postimg.cc/Hxzjs6hq/image.png',
             'https://i.postimg.cc/8kys2nWW/image.png',
             'https://i.postimg.cc/GhVt28Xd/image.png',
