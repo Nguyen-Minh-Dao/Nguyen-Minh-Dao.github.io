@@ -547,10 +547,6 @@ export default function App() {
               ]
             },
           ]
-          
-          
-          
-          
         },
         {
           type: 'text_list',
