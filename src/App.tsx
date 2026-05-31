@@ -652,10 +652,24 @@ export default function App() {
                </span>
                {block.heading}
             </h3>
-            <p className="text-neutral-300 leading-relaxed text-lg ml-11">{block.text}</p>
+            
+            {/* Hiển thị cho cấu trúc cũ (text và images nằm trực tiếp ngoài block) */}
+            {block.text && <p className="text-neutral-300 leading-relaxed text-lg ml-11">{block.text}</p>}
             {block.images && block.images.map((img, imgIdx) => (
               <div key={imgIdx} className="ml-11 rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-4 shadow-lg">
                 <img src={img} alt={block.heading} className="w-full object-contain max-h-[500px]" />
+              </div>
+            ))}
+
+            {/* Bổ sung: Hiển thị cho cấu trúc mới (mảng content lồng bên trong như Dự án 4) */}
+            {block.content && block.content.map((subItem, subIdx) => (
+              <div key={subIdx} className="space-y-4 mt-4">
+                {subItem.text && <p className="text-neutral-300 leading-relaxed text-lg ml-11">{subItem.text}</p>}
+                {subItem.images && subItem.images.map((img, imgIdx) => (
+                  <div key={`sub-img-${imgIdx}`} className="ml-11 rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-4 shadow-lg">
+                    <img src={img} alt={`${block.heading} phần ${subIdx + 1}`} className="w-full object-contain max-h-[500px]" />
+                  </div>
+                ))}
               </div>
             ))}
           </div>
