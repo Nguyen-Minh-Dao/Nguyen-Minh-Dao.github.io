@@ -545,7 +545,7 @@ export default function App() {
                 'https://i.postimg.cc/dt5QfWkK/image.png',
                 'https://i.postimg.cc/qRHpKSYc/image.png'
               ]
-            },
+            }
           ]
         },
         {
