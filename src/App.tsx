@@ -438,7 +438,7 @@ export default function App() {
           type: 'text_list',
           heading: '3. Phân tích Prompt nâng cao',
           items: [
-            { label: 'Tóm tắt nâng cao', value: 'Cung cấp yêu cầu "phải cung cấp phần giải thích chi tiết" để kích hoạt Chain-of-Thought.' }
+            { label: 'Tóm tắt nâng cao', value: 'Cung cấp yêu cầu "phải cung cấp phần giải thích chi tiết" để kích hoạt Chain-of-Thought.' },
             { label: 'Giải thích khái niệm', value: 'Yêu cầu áp dụng phương pháp First Principles (Tư duy nguyên bản) để bóc tách và đơn giản hóa các thuật ngữ.' },
             { label: 'Tạo câu hỏi', value: 'Áp dụng Prompt cấu trúc theo thang đo Bloom và yêu cầu AI suy luận từng bước (Step-by-step) cho mỗi lựa chọn.' }
           ],
