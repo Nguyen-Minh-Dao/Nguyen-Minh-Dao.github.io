@@ -586,10 +586,7 @@ export default function App() {
           content: [
             {text: 'Dự án này là một bài viết hướng dẫn nấu ăn hoàn chỉnh về món Gà Rán Giòn Tại Nhà, được xây dựng dựa trên công thức gốc của Chef Joshua Weissman (joshuaweissman.com). Mục tiêu của dự án không chỉ là dịch thuật đơn thuần, mà là tạo ra một bài viết hoàn chỉnh bằng tiếng Việt, có giọng văn gần gũi, dễ hiểu với người đọc Việt Nam, đồng thời bổ sung mẹo thực tế từ trải nghiệm cá nhân.'},
             {
-              text: 'Để hoàn thiện sản phẩm, ba nhóm công cụ AI đã được sử dụng kết hợp: (1) Claude cho việc dịch thuật, tinh chỉnh văn phong và cấu trúc bài viết; (2) Gemini của Google cho việc sáng tạo tiêu đề và mô tả hấp dẫn; (3) Canva AI cho việc thiết kế hình ảnh minh họa phù hợp với nội dung ẩm thực.',
-              images: [
-                'https://images.unsplash.com/photo-1514326640560-7d063ef2aed5?auto=format&fit=crop&q=80&w=1200'
-              ]
+              text: 'Để hoàn thiện sản phẩm, ba nhóm công cụ AI đã được sử dụng kết hợp: (1) Claude cho việc dịch thuật, tinh chỉnh văn phong và cấu trúc bài viết; (2) Gemini của Google cho việc sáng tạo tiêu đề và mô tả hấp dẫn; (3) Canva AI cho việc thiết kế hình ảnh minh họa phù hợp với nội dung ẩm thực.'
             }
           ]
         },
@@ -675,10 +672,7 @@ export default function App() {
         {
           type: 'step',
           heading: '7. Mẹo hay từ đầu bếp',
-          text: 'Bí quyết tạo lớp vỏ sần sùi giòn rụm: Múc vài muỗng nước ướp đặc vào hỗn hợp bột khô, vảy và trộn đều để tạo ra những mảnh bột vụn nhỏ trước khi lăn gà. Ngoài ra, đừng bỏ qua "oyster meat" - phần ngon nhất của con gà!',
-          images: [
-            'https://images.unsplash.com/photo-1589301773954-473d0dce14e7?auto=format&fit=crop&q=80&w=1200'
-          ]
+          text: 'Bí quyết tạo lớp vỏ sần sùi giòn rụm: Múc vài muỗng nước ướp đặc vào hỗn hợp bột khô, vảy và trộn đều để tạo ra những mảnh bột vụn nhỏ trước khi lăn gà. Ngoài ra, đừng bỏ qua "oyster meat" - phần ngon nhất của con gà!'
         }
       ]
     },
@@ -710,6 +704,30 @@ export default function App() {
           images: [
             'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200'
           ]
+        },
+        // PHẦN NỘI DUNG MỚI THÊM TỪ ẢNH
+        {
+          type: 'step',
+          heading: 'IV. BỘ NGUYÊN TẮC CÁ NHÂN VỀ SỬ DỤNG AI CÓ TRÁCH NHIỆM TRONG HỌC TẬP',
+          text: 'Dựa trên phân tích chính sách, trải nghiệm thực tế và phân tích đạo đức trên, tôi xây dựng bộ 6 nguyên tắc cá nhân về sử dụng AI có trách nhiệm trong học tập và nghiên cứu:'
+        },
+        {
+          type: 'table',
+          heading: 'Chi tiết 6 nguyên tắc',
+          headers: ['#', 'Nguyên tắc', 'Áp dụng cụ thể'],
+          rows: [
+            ['1', 'Tự đọc trước, AI hỗ trợ sau', 'Trước khi dùng AI tóm tắt hay phân tích tài liệu, luôn đọc ít nhất phần abstract và kết luận của tài liệu gốc. Điều này đảm bảo tôi hiểu ngữ cảnh và có thể phát hiện lỗi sai của AI.'],
+            ['2', 'Luôn kiểm chứng số liệu và trích dẫn', 'Mọi số liệu, tên tác giả, năm xuất bản, và tuyên bố thực tế từ đầu ra AI đều phải được đối chiếu với nguồn gốc trước khi đưa vào bài nộp. Không tin tuyệt đối vào đầu ra của AI.'],
+            ['3', 'Khai báo minh bạch và đầy đủ', 'Luôn ghi chú rõ ràng công cụ AI đã dùng, mục đích sử dụng và phần nội dung AI đóng góp. Thực hiện ngay cả khi quy định môn học không bắt buộc – đây là hành động thể hiện sự trung thực học thuật.'],
+            ['4', 'Giữ quá trình tư duy cốt lõi cho bản thân', 'Các bước đòi hỏi tư duy phân tích cao – như xác định luận điểm chính, đánh giá tính logic của lập luận, đưa ra kết luận – luôn tự thực hiện. Dùng AI cho các bước hỗ trợ như tìm kiếm, định dạng, và kiểm tra diễn đạt.'],
+            ['5', 'Đảm bảo kết quả phản ánh đúng năng lực thực tế', 'Trước khi nộp bài có dùng AI, tự hỏi: "Nếu giảng viên hỏi tôi về bất kỳ nội dung nào trong bài, tôi có thể giải thích và bảo vệ không?" Nếu không, cần học lại phần đó trước khi nộp.'],
+            ['6', 'Tôn trọng giới hạn của từng môn học và ngữ cảnh', 'Đọc kỹ quy định của từng môn về AI trước khi bắt đầu bài tập. Trong trường hợp không rõ ràng, chủ động hỏi giảng viên thay vì tự ý diễn giải theo hướng có lợi cho mình.']
+          ]
+        },
+        {
+          type: 'step',
+          heading: '4.1. Liên kết giữa nguyên tắc và phân tích đạo đức',
+          text: 'Sáu nguyên tắc trên được xây dựng để trực tiếp giải quyết ba vấn đề đạo đức đã phân tích: Nguyên tắc 3 và 6 giải quyết ranh giới hỗ trợ/gian lận; Nguyên tắc 1 và 2 giải quyết vấn đề quyền sở hữu trí tuệ và độ chính xác; Nguyên tắc 4 và 5 bảo vệ quá trình học tập và phát triển kỹ năng thực sự.'
         }
       ]
     }
