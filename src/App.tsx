@@ -682,7 +682,7 @@ export default function App() {
       category: 'Nghiên cứu Chính sách',
       icon: Landmark,
       color: 'text-emerald-400',
-      img: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800', 
+      img: 'https://www.pymnts.com/wp-content/uploads/2023/08/AI-regulation.jpg', 
       desc: 'Khảo sát và phân tích chính sách của Trường Đại học Công nghệ về liêm chính học thuật và ứng dụng AI.',
       content: [
         {
