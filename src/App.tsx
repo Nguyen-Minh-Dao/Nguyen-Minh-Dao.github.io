@@ -4,10 +4,9 @@ import {
   Apple, Wifi, Battery, Search, ChevronLeft, ChevronRight, 
   Terminal, Code, Cpu, Globe, Database, Server, 
   User, ArrowLeft, Maximize2, Minus, X, LayoutTemplate, Folder, BookOpen,
-  Zap, Lightbulb, MessageSquare, Target, Users, Landmark, Award
+  Zap, Lightbulb, MessageSquare, Target, Users, Landmark, Award, Moon, Sun
 } from 'lucide-react';
 
-// --- INJECTED CUSTOM CSS (Animations & Styles) ---
 const globalStyles = `
   @keyframes slide-down-clip {
     0% { transform: translateY(-50px); clip-path: inset(100% 0 0 0); filter: blur(8px); }
@@ -104,6 +103,14 @@ const globalStyles = `
     right: 0;
     margin: auto;
   }
+
+  /* Định cấu hình scrollbar macOS thích ứng theo chế độ */
+  .dark-theme {
+    --sb-thumb: #404040;
+  }
+  .light-theme {
+    --sb-thumb: #c1c1c1;
+  }
   .mac-scrollbar::-webkit-scrollbar {
     width: 8px;
   }
@@ -111,12 +118,10 @@ const globalStyles = `
     background: transparent;
   }
   .mac-scrollbar::-webkit-scrollbar-thumb {
-    background: #404040;
+    background: var(--sb-thumb, #404040);
     border-radius: 4px;
   }
 `;
-
-// --- COMPONENTS ---
 
 const AnimatedText = ({ text, className = "" }) => {
   return (
@@ -172,7 +177,7 @@ const BeamButton = ({ children, onClick, icon: Icon }) => (
   </div>
 );
 
-const FlashlightCard = ({ children, className = "", onClick }) => {
+const FlashlightCard = ({ children, className = "", onClick, isDarkMode }) => {
   const cardRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -183,6 +188,10 @@ const FlashlightCard = ({ children, className = "", onClick }) => {
     setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
+  const cardBg = isDarkMode ? 'bg-neutral-900/60 border-white/10' : 'bg-white/70 border-black/10';
+  const glowColorBg = isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)';
+  const glowColorBorder = isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.15)';
+
   return (
     <div
       ref={cardRef}
@@ -190,20 +199,20 @@ const FlashlightCard = ({ children, className = "", onClick }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
-      className={`relative overflow-hidden rounded-xl border border-white/10 bg-neutral-900/60 backdrop-blur-md cursor-pointer group ${className}`}
+      className={`relative overflow-hidden rounded-xl border backdrop-blur-md cursor-pointer group transition-colors duration-500 ${cardBg} ${className}`}
     >
       {isHovered && (
         <>
           <div
             className="absolute inset-0 pointer-events-none z-0"
             style={{
-              background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.06), transparent 50%)`,
+              background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, ${glowColorBg}, transparent 50%)`,
             }}
           />
           <div
             className="absolute inset-0 pointer-events-none z-10 p-[1px] rounded-xl"
             style={{
-              background: `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.4), transparent 50%)`,
+              background: `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, ${glowColorBorder}, transparent 50%)`,
               WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
               WebkitMaskComposite: 'xor',
               maskComposite: 'exclude',
@@ -222,7 +231,7 @@ const AppleLogo = ({ className = "" }) => (
   </svg>
 );
 
-const TopBar = ({ activeTab }) => {
+const TopBar = ({ activeTab, isDarkMode }) => {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -234,16 +243,21 @@ const TopBar = ({ activeTab }) => {
     activeTab === 'home' || activeTab === 'project_detail' ? 'Dự án' : 
     activeTab === 'about' ? 'Giới thiệu' : 'Tổng kết';
 
+  const barBg = isDarkMode ? 'bg-neutral-900/80 border-white/10 text-neutral-300' : 'bg-white/80 border-black/10 text-neutral-700';
+  const logoColor = isDarkMode ? 'hover:text-white' : 'hover:text-black';
+  const appTextColor = isDarkMode ? 'text-white' : 'text-black';
+  const menuTextColor = isDarkMode ? 'hover:text-white' : 'hover:text-black';
+
   return (
-    <div className="h-7 w-full bg-neutral-900/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 text-[13px] font-medium text-neutral-300 z-50 relative">
+    <div className={`h-7 w-full backdrop-blur-md border-b flex items-center justify-between px-4 text-[13px] font-medium transition-all duration-500 z-50 relative ${barBg}`}>
       <div className="flex items-center space-x-4 cursor-default">
-        <AppleLogo className="hover:text-white transition-colors" />
-        <span className="font-bold text-white">{appName}</span>
-        <span className="hover:text-white transition-colors hidden sm:inline-block">File</span>
-        <span className="hover:text-white transition-colors hidden sm:inline-block">Edit</span>
-        <span className="hover:text-white transition-colors hidden sm:inline-block">View</span>
-        <span className="hover:text-white transition-colors hidden md:inline-block">Window</span>
-        <span className="hover:text-white transition-colors hidden md:inline-block">Help</span>
+        <AppleLogo className={`transition-colors ${logoColor}`} />
+        <span className={`font-bold ${appTextColor}`}>{appName}</span>
+        <span className={`transition-colors hidden sm:inline-block ${menuTextColor}`}>File</span>
+        <span className={`transition-colors hidden sm:inline-block ${menuTextColor}`}>Edit</span>
+        <span className={`transition-colors hidden sm:inline-block ${menuTextColor}`}>View</span>
+        <span className={`transition-colors hidden md:inline-block ${menuTextColor}`}>Window</span>
+        <span className={`transition-colors hidden md:inline-block ${menuTextColor}`}>Help</span>
       </div>
       <div className="flex items-center space-x-4 cursor-default">
         <Wifi size={14} />
@@ -257,10 +271,11 @@ const TopBar = ({ activeTab }) => {
 // --- MAIN APPLICATION ---
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('about'); // Đổi tab mặc định thành 'about'
+  const [activeTab, setActiveTab] = useState('about');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // DATA DỰ ÁN GIỮ NGUYÊN
+  // DATA DỰ ÁN GIỮ NGUYÊN (Sửa lỗi trùng khóa "text" ở Dự án 4)
   const gridProjects = [
     { 
       id: 1, 
@@ -326,7 +341,29 @@ export default function App() {
       content: [
         { type: 'text_list', heading: 'Thông tin cá nhân', items: [ { label: 'Họ và tên', value: 'Nguyễn Minh Đạo' }, { label: 'Mã sinh viên', value: '25022158' }, { label: 'Nhóm', value: '17' } ] },
         { type: 'text_list', heading: 'I. Lựa chọn công cụ', items: [ { label: 'Quản lý dự án', value: 'Microsoft Planner - Trực quan hóa khối lượng công việc, theo dõi tiến độ và quản lý thời hạn (deadline) của từng cá nhân.' }, { label: 'Giao tiếp nhóm', value: 'Messenger - Đảm bảo thông tin được xuyên suốt, hỗ trợ thảo luận nhanh chóng và giải quyết các vấn đề phát sinh tức thời.' }, { label: 'Lưu trữ và chia sẻ tệp', value: 'Google Drive - Xây dựng kho lưu trữ tài nguyên chung với cấu trúc khoa học, bảo mật và dễ dàng tìm kiếm.' }, { label: 'Soạn thảo tài liệu cộng tác', value: 'Google Docs - Hỗ trợ nhiều người cùng biên tập, chỉnh sửa văn bản theo thời gian thực mà không làm gián đoạn tiến trình.' } ] },
-        { type: 'step', heading: 'II. Trải nghiệm sử dụng công cụ trực tuyến', content: [ { text: 'Ngay từ giai đoạn khởi động dự án, tôi đã tham gia thiết lập không gian làm việc trên Microsoft Planner. Thay vì chỉ liệt kê công việc một cách đơn thuần, tôi đã áp dụng phương pháp Kanban, chia dự án thành các nhóm công việc cụ thể như: To-do, Doing, và Done.', images: [ 'https://i.postimg.cc/LXWhGN0F/image.png', 'https://i.postimg.cc/J795kq4W/image.png' ] }, { text: 'Nhận thức được tầm quan trọng của việc quản lý dữ liệu, tôi đã chủ động đề xuất và thiết lập hệ thống lưu trữ trên Google Drive. Tôi đã tạo ra một cấu trúc thư mục với nhiều cấp độ để tránh tình trạng lộn xộn khi số lượng tệp tin tăng lên.', text: 'Đặc biệt, các tệp tin được tải lên đều tuân thủ quy tắc đặt tên thống nhất: Tên Dự Án_Tên Người Làm_Tên Tài Liệu. Để bảo vệ dữ liệu nhưng vẫn đảm bảo sự phối hợp, tôi đã thiết lập quyền truy cập: cấp quyền "Người chỉnh sửa" cho các thành viên nhóm và "Người xem" cho các đối tượng khác.', images: [ 'https://i.postimg.cc/tJhZPF2G/image.png', 'https://i.postimg.cc/HkWcccMZ/image.png', 'https://i.postimg.cc/vmkcN0NJ/image.png', 'https://i.postimg.cc/8cVs1jDZ/image.png' ] }, { text: 'Tôi không chỉ viết phần kịch bản được giao mà còn theo dõi và góp ý cho các thành viên khác. Tôi đã tận dụng tính năng "Nhận xét" để highlight các đoạn cần chỉnh sửa và tag thành viên để họ nhận được thông báo ngay lập tức.', images: [ 'https://i.postimg.cc/qv7qMfVB/image.png', 'https://i.postimg.cc/vmgmfWZv/image.png' ] }, { text: 'Messenger được chọn làm không gian giao tiếp chính nhờ tính phổ biến. Tôi đã tham gia thảo luận cực kỳ sôi nổi, đóng góp ý kiến (hơn 10 lượt/tuần). Tôi chủ động gửi các liên kết (link) tài liệu từ Google Drive, nhắc nhở deadline từ Planner, và sẵn sàng hỗ trợ khi thành viên khác gặp khó khăn.', images: [ 'https://i.postimg.cc/y6X8m67B/image.png', 'https://i.postimg.cc/dt5QfWkK/image.png', 'https://i.postimg.cc/qRHpKSYc/image.png' ] } ] },
+        { 
+          type: 'step', 
+          heading: 'II. Trải nghiệm sử dụng công cụ trực tuyến', 
+          content: [ 
+            { 
+              text: 'Ngay từ giai đoạn khởi động dự án, tôi đã tham gia thiết lập không gian làm việc trên Microsoft Planner. Thay vì chỉ liệt kê công việc một cách đơn thuần, tôi đã áp dụng phương pháp Kanban, chia dự án thành các nhóm công việc cụ thể như: To-do, Doing, và Done.', 
+              images: [ 'https://i.postimg.cc/LXWhGN0F/image.png', 'https://i.postimg.cc/J795kq4W/image.png' ] 
+            }, 
+            { 
+              // Gộp hai giá trị text liền kề để loại bỏ hoàn toàn lỗi duplicate key "text"
+              text: 'Nhận thức được tầm quan trọng của việc quản lý dữ liệu, tôi đã chủ động đề xuất và thiết lập hệ thống lưu trữ trên Google Drive. Tôi đã tạo ra một cấu trúc thư mục với nhiều cấp độ để tránh tình trạng lộn xộn khi số lượng tệp tin tăng lên.\n\nĐặc biệt, các tệp tin được tải lên đều tuân thủ quy tắc đặt tên thống nhất: Tên Dự Án_Tên Người Làm_Tên Tài Liệu. Để bảo vệ dữ liệu nhưng vẫn đảm bảo sự phối hợp, tôi đã thiết lập quyền truy cập: cấp quyền "Người chỉnh sửa" cho các thành viên nhóm và "Người xem" cho các đối tượng khác.', 
+              images: [ 'https://i.postimg.cc/tJhZPF2G/image.png', 'https://i.postimg.cc/HkWcccMZ/image.png', 'https://i.postimg.cc/vmkcN0NJ/image.png', 'https://i.postimg.cc/8cVs1jDZ/image.png' ] 
+            }, 
+            { 
+              text: 'Tôi không chỉ viết phần kịch bản được giao mà còn theo dõi và góp ý cho các thành viên khác. Tôi đã tận dụng tính năng "Nhận xét" để highlight các đoạn cần chỉnh sửa và tag thành viên để họ nhận được thông báo ngay lập tức.', 
+              images: [ 'https://i.postimg.cc/qv7qMfVB/image.png', 'https://i.postimg.cc/vmgmfWZv/image.png' ] 
+            }, 
+            { 
+              text: 'Messenger được chọn làm không gian giao tiếp chính nhờ tính phổ biến. Tôi đã tham gia thảo luận cực kỳ sôi nổi, đóng góp ý kiến (hơn 10 lượt/tuần). Tôi chủ động gửi các liên kết (link) tài liệu từ Google Drive, nhắc nhở deadline từ Planner, và sẵn sàng hỗ trợ khi thành viên khác gặp khó khăn.', 
+              images: [ 'https://i.postimg.cc/y6X8m67B/image.png', 'https://i.postimg.cc/dt5QfWkK/image.png', 'https://i.postimg.cc/qRHpKSYc/image.png' ] 
+            } 
+          ] 
+        },
         { type: 'text_list', heading: 'III. Thách thức và Giải pháp tương tác nhóm', items: [ { label: 'Thách thức 1: Trôi tin nhắn trên Messenger', value: 'Vấn đề: Các tin nhắn quan trọng như link Drive, file báo cáo dễ bị trôi đi. Khi một thành viên cần tìm lại tài liệu để làm việc, họ phải lướt lại lịch sử tin nhắn hoặc liên tục hỏi lại vào trong nhóm, mất nhiều thời gian và công sức.\nGiải pháp: Tôi sử dụng tính năng “Ghim tin nhắn" cho những thông báo, tin nhắn quan trọng. Ngoài ra, ngay từ đầu tôi đã quy định không nhắn linh tinh vào trong nhóm chat.' }, { label: 'Thách thức 2: Quản lý tập tin không hiệu quả', value: 'Vấn đề: Ban đầu, nhóm đưa lên rất nhiều file tài liệu với việc đặt tên lộn xộn kiểu "Tài liệu không có tiêu đề", "Tài liệu không có tiêu đề (1)", "tonghop", gây bối rối không biết đâu là file chuẩn nhất để làm tiếp.\nGiải pháp cá nhân áp dụng: Tôi bảo mọi người đặt tên file theo quy tắc cố định: Đặt tên file theo cú pháp “Tên nhóm_Tên người làm_Tên file”, nếu là bản chỉnh sửa thì thêm phiên bản.' } ] }
       ]
     },
@@ -376,28 +413,33 @@ export default function App() {
     setActiveTab('home');
   };
 
+  const textMainClass = isDarkMode ? 'text-white' : 'text-neutral-950';
+  const textBodyClass = isDarkMode ? 'text-neutral-300' : 'text-neutral-700';
+  const borderLightClass = isDarkMode ? 'border-white/5' : 'border-black/5';
+  const borderPillClass = isDarkMode ? 'border-white/10 bg-black/50' : 'border-black/10 bg-neutral-100';
+
   const renderContentBlock = (block, i) => {
     switch (block.type) {
       case 'step':
         return (
-          <div key={i} className="space-y-4 border-b border-white/5 pb-10 last:border-0">
-            <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+          <div key={i} className={`space-y-4 border-b pb-10 last:border-0 ${borderLightClass}`}>
+            <h3 className={`text-2xl font-bold flex items-center gap-3 ${textMainClass}`}>
                <span className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 text-sm border border-blue-500/30">
                  {i + 1}
                </span>
                {block.heading}
             </h3>
-            {block.text && <p className="text-neutral-300 leading-relaxed text-lg ml-11">{block.text}</p>}
+            {block.text && <p className={`leading-relaxed text-lg ml-11 ${textBodyClass}`}>{block.text}</p>}
             {block.images && block.images.map((img, imgIdx) => (
-              <div key={imgIdx} className="ml-11 rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-4 shadow-lg">
+              <div key={imgIdx} className={`ml-11 rounded-xl overflow-hidden border mt-4 shadow-lg ${borderPillClass}`}>
                 <img src={img} alt={block.heading} className="w-full object-contain max-h-[500px]" />
               </div>
             ))}
             {block.content && block.content.map((subItem, subIdx) => (
               <div key={subIdx} className="space-y-4 mt-4">
-                {subItem.text && <p className="text-neutral-300 leading-relaxed text-lg ml-11">{subItem.text}</p>}
+                {subItem.text && <p className={`leading-relaxed text-lg ml-11 ${textBodyClass}`}>{subItem.text}</p>}
                 {subItem.images && subItem.images.map((img, imgIdx) => (
-                  <div key={`sub-img-${imgIdx}`} className="ml-11 rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-4 shadow-lg">
+                  <div key={`sub-img-${imgIdx}`} className={`ml-11 rounded-xl overflow-hidden border mt-4 shadow-lg ${borderPillClass}`}>
                     <img src={img} alt={`${block.heading} phần ${subIdx + 1}`} className="w-full object-contain max-h-[500px]" />
                   </div>
                 ))}
@@ -408,18 +450,18 @@ export default function App() {
       
       case 'text_list':
         return (
-          <div key={i} className="space-y-4 border-b border-white/5 pb-10 last:border-0">
-            <h3 className="text-2xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">{block.heading}</h3>
+          <div key={i} className={`space-y-4 border-b pb-10 last:border-0 ${borderLightClass}`}>
+            <h3 className={`text-2xl font-bold mb-6 border-l-4 border-blue-500 pl-4 ${textMainClass}`}>{block.heading}</h3>
             <ul className="space-y-4 ml-4">
               {block.items.map((item, idx) => (
                 <li key={idx} className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-lg">
-                  <span className="text-neutral-400 font-medium shrink-0 sm:w-1/3 md:w-1/4">{item.label}:</span>
-                  <span className="text-neutral-200 leading-relaxed">{item.value}</span>
+                  <span className={`font-medium shrink-0 sm:w-1/3 md:w-1/4 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{item.label}:</span>
+                  <span className={`leading-relaxed ${isDarkMode ? 'text-neutral-200' : 'text-neutral-800'}`}>{item.value}</span>
                 </li>
               ))}
             </ul>
             {block.images && block.images.map((img, imgIdx) => (
-              <div key={imgIdx} className="rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-6 shadow-lg">
+              <div key={imgIdx} className={`rounded-xl overflow-hidden border mt-6 shadow-lg ${borderPillClass}`}>
                 <img src={img} alt={block.heading} className="w-full object-contain max-h-[500px]" />
               </div>
             ))}
@@ -428,22 +470,22 @@ export default function App() {
 
       case 'table':
         return (
-          <div key={i} className="space-y-4 border-b border-white/5 pb-10 last:border-0">
-            <h3 className="text-2xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">{block.heading}</h3>
-            <div className="overflow-x-auto rounded-xl border border-white/10 shadow-lg bg-black/40 mac-scrollbar">
+          <div key={i} className={`space-y-4 border-b pb-10 last:border-0 ${borderLightClass}`}>
+            <h3 className={`text-2xl font-bold mb-6 border-l-4 border-emerald-500 pl-4 ${textMainClass}`}>{block.heading}</h3>
+            <div className={`overflow-x-auto rounded-xl border shadow-lg mac-scrollbar ${isDarkMode ? 'border-white/10 bg-black/40' : 'border-black/10 bg-neutral-50'}`}>
               <table className="w-full text-left border-collapse min-w-[900px]">
-                <thead className="bg-white/5 text-neutral-300 font-semibold text-xs uppercase tracking-wider">
+                <thead className={`font-semibold text-xs uppercase tracking-wider ${isDarkMode ? 'bg-white/5 text-neutral-300' : 'bg-neutral-200/50 text-neutral-700'}`}>
                   <tr>
                     {block.headers.map((th, idx) => (
-                      <th key={idx} className="p-4 border-b border-white/10 whitespace-nowrap">{th}</th>
+                      <th key={idx} className={`p-4 border-b whitespace-nowrap ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>{th}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="text-neutral-300 text-[13px]">
+                <tbody className={`text-[13px] ${isDarkMode ? 'text-neutral-300' : 'text-neutral-800'}`}>
                   {block.rows.map((row, rIdx) => (
-                    <tr key={rIdx} className="hover:bg-white/5 border-b border-white/5 last:border-0 transition-colors">
+                    <tr key={rIdx} className={`border-b transition-colors ${isDarkMode ? 'hover:bg-white/5 border-white/5 last:border-0' : 'hover:bg-black/5 border-black/5 last:border-0'}`}>
                       {row.map((cell, cIdx) => (
-                        <td key={cIdx} className={`p-4 align-top leading-relaxed ${cIdx === 0 ? 'font-medium text-blue-300' : ''}`}>
+                        <td key={cIdx} className={`p-4 align-top leading-relaxed ${cIdx === 0 ? 'font-medium text-blue-500 dark:text-blue-300' : ''}`}>
                           {cell}
                         </td>
                       ))}
@@ -462,16 +504,23 @@ export default function App() {
 
   const NavItem = ({ id, label, icon: Icon }) => {
     const isActive = activeTab === id || (id === 'home' && activeTab === 'project_detail');
+    
+    const activeClass = isDarkMode 
+      ? 'bg-blue-500/20 text-blue-400 border-blue-500/30 shadow-lg' 
+      : 'bg-blue-500/15 text-blue-600 border-blue-500/30 shadow-md';
+      
+    const inactiveClass = isDarkMode
+      ? 'text-neutral-400 hover:bg-white/5 hover:text-neutral-200 border-transparent'
+      : 'text-neutral-600 hover:bg-black/5 hover:text-neutral-900 border-transparent';
+
     return (
       <button 
         onClick={() => {
           setActiveTab(id);
           if (id !== 'home') setSelectedProject(null);
         }}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
-          isActive 
-            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-lg' 
-            : 'text-neutral-400 hover:bg-white/5 hover:text-neutral-200 border border-transparent'
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 border ${
+          isActive ? activeClass : inactiveClass
         }`}
       >
         <Icon size={18} />
@@ -480,30 +529,47 @@ export default function App() {
     );
   };
 
+  // Hình nền linh hoạt dựa trên chế độ sáng/tối
+  const bgImage = isDarkMode 
+    ? "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')"
+    : "url('https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2564&auto=format&fit=crop')";
+
   return (
     <div 
-      className="min-h-screen bg-black text-neutral-200 font-sans overflow-hidden flex flex-col selection:bg-blue-500/30 relative"
+      className={`min-h-screen font-sans overflow-hidden flex flex-col selection:bg-blue-500/30 relative transition-all duration-700 ${
+        isDarkMode ? 'bg-black text-neutral-200 dark-theme' : 'bg-neutral-100 text-neutral-800 light-theme'
+      }`}
       style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')",
+        backgroundImage: bgImage,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      <div className="absolute inset-0 bg-black/20 z-0 pointer-events-none" />
+      <div className={`absolute inset-0 z-0 pointer-events-none transition-colors duration-700 ${isDarkMode ? 'bg-black/20' : 'bg-white/10'}`} />
       <style>{globalStyles}</style>
-      <TopBar activeTab={activeTab} />
+      
+      {/* Top Bar macOS */}
+      <TopBar activeTab={activeTab} isDarkMode={isDarkMode} />
 
       <div className="flex-1 relative flex items-center justify-center p-4 md:p-12 z-0">
-        <div className="relative z-10 w-full max-w-7xl h-[85vh] bg-gradient-to-br from-neutral-900/70 to-black/90 backdrop-blur-[50px] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08),inset_0_-1px_1px_rgba(255,255,255,0.02)] border border-white/10 flex flex-col overflow-hidden">
+        
+        {/* WINDOW CONTAINER - Thích ứng màu nền lấp lánh */}
+        <div className={`relative z-10 w-full max-w-7xl h-[85vh] backdrop-blur-[50px] rounded-xl flex flex-col overflow-hidden transition-all duration-700 border ${
+          isDarkMode 
+            ? 'bg-gradient-to-br from-neutral-900/70 to-black/90 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08),inset_0_-1px_1px_rgba(255,255,255,0.02)]' 
+            : 'bg-gradient-to-br from-white/80 to-neutral-50/90 border-black/10 shadow-[0_20px_50px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(0,0,0,0.05)]'
+        }`}>
           
           {/* WINDOW HEADER */}
-          <div className="h-12 w-full bg-black/30 border-b border-white/10 flex items-center px-4 justify-between shrink-0">
+          <div className={`h-12 w-full border-b flex items-center px-4 justify-between shrink-0 transition-all duration-500 ${
+            isDarkMode ? 'bg-black/30 border-white/10' : 'bg-white/35 border-black/10'
+          }`}>
             <div className="flex space-x-2 w-1/4 sm:w-1/3">
               <div className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 cursor-pointer flex items-center justify-center group"><X size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
               <div className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 cursor-pointer flex items-center justify-center group"><Minus size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
               <div className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 cursor-pointer flex items-center justify-center group"><Maximize2 size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
             </div>
-            <div className="w-2/4 sm:w-1/3 text-xs sm:text-sm font-semibold text-neutral-400 flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden">
+            <div className={`w-2/4 sm:w-1/3 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden transition-colors duration-500 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
               <LayoutTemplate size={14} className="shrink-0" /> 
               <span className="truncate">Cá nhân hóa Portfolio</span>
             </div>
@@ -511,7 +577,11 @@ export default function App() {
               {activeTab === 'project_detail' && (
                 <button 
                   onClick={closeProject}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/5 text-xs font-medium text-white transition-all hover:scale-105 active:scale-95"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all hover:scale-105 active:scale-95 ${
+                    isDarkMode 
+                      ? 'bg-white/10 hover:bg-white/20 border-white/5 text-white' 
+                      : 'bg-black/5 hover:bg-black/10 border-black/5 text-neutral-800'
+                  }`}
                 >
                   <ArrowLeft size={12} /> Quay lại
                 </button>
@@ -523,7 +593,9 @@ export default function App() {
           <div className="flex-1 flex overflow-hidden">
             
             {/* SIDEBAR NAVIGATION */}
-            <div className="w-16 sm:w-56 border-r border-white/10 bg-black/20 flex flex-col items-center sm:items-start px-2 sm:px-4 py-6 gap-3 shrink-0">
+            <div className={`w-16 sm:w-56 border-r flex flex-col items-center sm:items-start px-2 sm:px-4 py-6 gap-3 shrink-0 transition-colors duration-500 ${
+              isDarkMode ? 'border-white/10 bg-black/20' : 'border-black/10 bg-white/20'
+            }`}>
                <NavItem id="about" label="Giới thiệu" icon={User} />
                <NavItem id="home" label="Dự án của tôi" icon={Folder} />
                <NavItem id="summary" label="Tổng kết" icon={Award} />
@@ -535,46 +607,50 @@ export default function App() {
               {/* TRANG GIỚI THIỆU */}
               {activeTab === 'about' && (
                 <div className="p-8 md:p-12 space-y-10 max-w-4xl mx-auto animate-scroll">
-                  <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mt-2 pb-10 border-b border-white/10">
-                    <div className="w-40 h-40 rounded-full mb-3 shrink-0 overflow-hidden border-2 border-[#ff00ff] shadow-[0_0_15px_#ff00ff,0_0_30px_rgba(255,0,255,0.6)] flex items-center justify-center bg-black/40">
+                  <div className={`flex flex-col md:flex-row items-center md:items-start gap-8 mt-2 pb-10 border-b ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
+                    <div className={`w-40 h-40 rounded-full mb-3 shrink-0 overflow-hidden border-2 flex items-center justify-center transition-all duration-500 ${
+                      isDarkMode 
+                        ? 'border-[#ff00ff] shadow-[0_0_15px_#ff00ff,0_0_30px_rgba(255,0,255,0.6)] bg-black/40' 
+                        : 'border-[#ff00ff] shadow-[0_0_15px_rgba(255,0,255,0.4)] bg-neutral-100'
+                    }`}>
                         <img 
                             src="https://i.postimg.cc/Mpsf6x9B/bo-mau-be.png" 
                             alt="Avatar"
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              e.currentTarget.outerHTML = '<span class="text-white text-3xl font-bold">NMD</span>';
+                              e.currentTarget.outerHTML = `<span class="text-3xl font-bold ${textMainClass}">NMD</span>`;
                             }}
                           />
                     </div>
                     <div className="space-y-4 text-center md:text-left overflow-hidden">
-                      <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-white whitespace-nowrap overflow-hidden text-ellipsis">
+                      <h1 className={`text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${textMainClass}`}>
                         <AnimatedText text="Nguyễn Minh Đạo" />
                       </h1>
-                      <div className="text-lg md:text-xl text-blue-400 font-medium space-y-1">
+                      <div className={`text-lg md:text-xl font-medium space-y-1 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
                         <p>Mã sinh viên: 25022158</p>
                         <p>Ngành: Công nghệ Kĩ thuật Điện tử - Viễn thông</p>
                       </div>
-                      <p className="text-neutral-400 pt-2 max-w-xl text-lg">
+                      <p className={`pt-2 max-w-xl text-lg ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
                         Sở thích cá nhân: Đam mê nghiên cứu các công nghệ mới, thiết kế phần cứng vi mạch, thích đọc sách về công nghệ và khoa học máy tính.
                       </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FlashlightCard className="h-full">
-                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                        <Target className="text-blue-400" /> Định hướng phát triển
+                    <FlashlightCard isDarkMode={isDarkMode} className="h-full">
+                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                        <Target className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> Định hướng phát triển
                       </h3>
-                      <p className="text-neutral-300 leading-relaxed text-lg">
+                      <p className={`leading-relaxed text-lg ${textBodyClass}`}>
                         Mục tiêu học tập của tôi là nắm vững nền tảng Điện tử - Viễn thông, đồng thời cập nhật liên tục các xu hướng công nghệ mới. Định hướng tương lai là trở thành một Kỹ sư phần cứng giỏi, có khả năng tích hợp AI vào quy trình thiết kế và tối ưu hóa hệ thống vi mạch điện tử.
                       </p>
                     </FlashlightCard>
 
-                    <FlashlightCard className="h-full">
-                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                        <Globe className="text-emerald-400" /> Mục tiêu Portfolio
+                    <FlashlightCard isDarkMode={isDarkMode} className="h-full">
+                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                        <Globe className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} /> Mục tiêu Portfolio
                       </h3>
-                      <ul className="text-neutral-300 leading-relaxed text-lg space-y-3 list-disc list-inside">
+                      <ul className={`leading-relaxed text-lg space-y-3 list-disc list-inside ${textBodyClass}`}>
                         <li><strong>Thể hiện kỹ năng số:</strong> Số hóa toàn bộ các bài tập và dự án cá nhân một cách trực quan.</li>
                         <li><strong>Lưu trữ & Truy cập:</strong> Tạo một không gian tập trung để dễ dàng tìm kiếm, đánh giá sự tiến bộ của bản thân qua từng giai đoạn học tập.</li>
                         <li><strong>Chia sẻ kiến thức:</strong> Chia sẻ kinh nghiệm và các công cụ công nghệ đến bạn bè và cộng đồng.</li>
@@ -588,17 +664,17 @@ export default function App() {
               {activeTab === 'home' && (
                 <div className="p-8 md:p-12 space-y-10 max-w-6xl mx-auto animate-scroll">
                   <div className="space-y-6">
-                    <h2 className="text-3xl font-bold text-white border-b border-white/10 pb-4">Kho Lưu Trữ Bài Tập & Dự Án</h2>
+                    <h2 className={`text-3xl font-bold border-b pb-4 ${textMainClass} ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>Kho Lưu Trữ Bài Tập & Dự Án</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
                       {gridProjects.map((proj, idx) => (
                         <ScrollReveal key={proj.id} delay={idx * 0.1}>
-                          <FlashlightCard onClick={() => openProject(proj)} className="h-full min-h-[360px] flex flex-col">
-                            <div className="h-40 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-white/10 relative shrink-0">
+                          <FlashlightCard isDarkMode={isDarkMode} onClick={() => openProject(proj)} className="h-full min-h-[360px] flex flex-col">
+                            <div className={`h-40 -mx-6 -mt-6 mb-4 overflow-hidden border-b relative shrink-0 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
                                 <img src={proj.img} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                             </div>
-                            <h4 className="text-lg font-bold text-white mb-2 leading-snug">{proj.title}</h4>
-                            <p className="text-neutral-400 flex-1 text-sm line-clamp-3">{proj.desc}</p>
-                            <div className="mt-4 flex items-center text-blue-400 text-sm font-medium shrink-0 group-hover:translate-x-2 transition-transform">
+                            <h4 className={`text-lg font-bold mb-2 leading-snug ${textMainClass}`}>{proj.title}</h4>
+                            <p className={`flex-1 text-sm line-clamp-3 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{proj.desc}</p>
+                            <div className={`mt-4 flex items-center text-sm font-medium shrink-0 group-hover:translate-x-2 transition-transform ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
                               Xem chi tiết <ArrowLeft className="ml-2 w-4 h-4 rotate-180" />
                             </div>
                           </FlashlightCard>
@@ -612,12 +688,12 @@ export default function App() {
               {/* TRANG CHI TIẾT DỰ ÁN */}
               {activeTab === 'project_detail' && selectedProject && (
                 <div className="animate-scroll p-8 md:p-12 max-w-5xl mx-auto space-y-8 min-h-full">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 overflow-hidden border-b border-white/10 pb-6">
+                  <div className={`flex flex-col sm:flex-row sm:items-center gap-4 overflow-hidden border-b pb-6 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
                     {selectedProject.icon && <selectedProject.icon size={48} className={`shrink-0 ${selectedProject.color}`} />}
                     <div>
-                      <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">{selectedProject.title}</h1>
+                      <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight ${textMainClass}`}>{selectedProject.title}</h1>
                       {selectedProject.category && (
-                        <p className="text-blue-400 font-medium mt-2">{selectedProject.category}</p>
+                        <p className={`font-medium mt-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>{selectedProject.category}</p>
                       )}
                     </div>
                   </div>
@@ -630,55 +706,55 @@ export default function App() {
               {/* TRANG TỔNG KẾT */}
               {activeTab === 'summary' && (
                 <div className="p-8 md:p-12 space-y-10 max-w-5xl mx-auto animate-scroll">
-                  <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight border-b border-white/10 pb-6 mb-8">
+                  <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight border-b pb-6 mb-8 ${textMainClass} ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
                     Tổng kết & Nhìn lại chặng đường
                   </h1>
                   
                   <div className="space-y-8">
-                    <FlashlightCard className="border-l-4 border-blue-500">
-                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                        <Lightbulb className="text-blue-400" /> Trải nghiệm và Cảm nhận cá nhân
+                    <FlashlightCard isDarkMode={isDarkMode} className="border-l-4 border-blue-500">
+                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                        <Lightbulb className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> Trải nghiệm và Cảm nhận cá nhân
                       </h3>
-                      <p className="text-neutral-300 leading-relaxed text-lg">
+                      <p className={`leading-relaxed text-lg ${textBodyClass}`}>
                         Việc thực hiện dự án Portfolio này là một hành trình thực sự thú vị và bổ ích. Đây không chỉ là nơi lưu trữ các bài tập đơn thuần, mà còn là cơ hội để tôi hệ thống hóa lại toàn bộ những kiến thức, kỹ năng số đã học được trong suốt học phần. Qua từng bước xây dựng nội dung và tối ưu hiển thị, tôi cảm nhận rõ sự tiến bộ của bản thân trong tư duy tổ chức thông tin và khả năng ứng dụng công nghệ vào thực tiễn.
                       </p>
                     </FlashlightCard>
 
-                    <FlashlightCard className="border-l-4 border-emerald-500">
-                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                        <Code className="text-emerald-400" /> Những Kiến thức & Kỹ năng quan trọng nhất
+                    <FlashlightCard isDarkMode={isDarkMode} className="border-l-4 border-emerald-500">
+                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                        <Code className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} /> Những Kiến thức & Kỹ năng quan trọng nhất
                       </h3>
-                      <ul className="text-neutral-300 leading-relaxed text-lg space-y-4">
+                      <ul className={`leading-relaxed text-lg space-y-4 ${textBodyClass}`}>
                         <li className="flex gap-3">
-                          <span className="text-emerald-400">✓</span>
+                          <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
                           <span><strong>Kỹ năng khai thác và sử dụng AI (Prompt Engineering):</strong> Học cách tối ưu hóa câu lệnh để giao tiếp và khai thác sức mạnh của các mô hình ngôn ngữ lớn như ChatGPT, Claude, Gemini.</span>
                         </li>
                         <li className="flex gap-3">
-                          <span className="text-emerald-400">✓</span>
+                          <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
                           <span><strong>Kỹ năng làm việc nhóm trực tuyến:</strong> Sử dụng thành thạo các công cụ cộng tác như Google Drive, Microsoft Planner, Google Docs để quản lý tiến độ, dữ liệu dự án hiệu quả.</span>
                         </li>
                         <li className="flex gap-3">
-                          <span className="text-emerald-400">✓</span>
+                          <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
                           <span><strong>Tư duy Liêm chính học thuật:</strong> Nắm vững nguyên tắc đạo đức khi sử dụng AI, biết cách trích dẫn, khai báo nguồn và giữ lại cốt lõi tư duy của bản thân.</span>
                         </li>
                       </ul>
                     </FlashlightCard>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <FlashlightCard className="border-t-4 border-yellow-500">
-                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                          <Award className="text-yellow-400" /> Điểm tâm đắc nhất
+                      <FlashlightCard isDarkMode={isDarkMode} className="border-t-4 border-yellow-500">
+                        <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                          <Award className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'} /> Điểm tâm đắc nhất
                         </h3>
-                        <p className="text-neutral-300 leading-relaxed">
-                          Điều tôi tâm đắc nhất là việc vận dụng thành công các Framework (như C.R.E.A.T.E) trong việc tối ưu Prompt AI, điều này giúp tôi tiết kiệm được rất nhiều thời gian trong học tập và nghiên cứu. Bên cạnh đó, việc xây dựng được một Portfolio trực quan thế này giúp tôi cảm thấy tự hào về những nỗ lực đã bỏ ra.
+                        <p className={`leading-relaxed ${textBodyClass}`}>
+                          Điều tôi tâm đắc nhất là việc vận dụng thành công các Framework (nhu C.R.E.A.T.E) trong việc tối ưu Prompt AI, điều này giúp tôi tiết kiệm được rất nhiều thời gian trong học tập và nghiên cứu. Bên cạnh đó, việc xây dựng được một Portfolio trực quan thế này giúp tôi cảm thấy tự hào về những nỗ lực đã bỏ ra.
                         </p>
                       </FlashlightCard>
 
-                      <FlashlightCard className="border-t-4 border-red-500">
-                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                          <MessageSquare className="text-red-400" /> Thách thức gặp phải
+                      <FlashlightCard isDarkMode={isDarkMode} className="border-t-4 border-red-500">
+                        <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                          <MessageSquare className={isDarkMode ? 'text-red-400' : 'text-red-600'} /> Thách thức gặp phải
                         </h3>
-                        <p className="text-neutral-300 leading-relaxed">
+                        <p className={`leading-relaxed ${textBodyClass}`}>
                           Thách thức lớn nhất trong quá trình xây dựng Portfolio là việc tổng hợp và định dạng lại khối lượng nội dung đồ sộ từ nhiều bài tập khác nhau sao cho khoa học, đồng bộ và thẩm mỹ. Ngoài ra, việc làm quen với các công cụ tạo lập Website/Portfolio cũng đòi hỏi sự kiên nhẫn tìm tòi trong những ngày đầu.
                         </p>
                       </FlashlightCard>
@@ -691,6 +767,23 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {/* FLOATING LIGHT/DARK THEME TOGGLE BUTTON AT BOTTOM RIGHT */}
+      <button 
+        onClick={() => setIsDarkMode(!isDarkMode)}
+        className={`fixed bottom-6 right-6 z-50 flex items-center justify-center p-3.5 rounded-full border shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md ${
+          isDarkMode 
+            ? 'bg-neutral-900/85 border-white/20 text-yellow-400 hover:bg-neutral-800' 
+            : 'bg-white/85 border-black/15 text-indigo-600 hover:bg-neutral-100'
+        }`}
+        title={isDarkMode ? "Chuyển sang giao diện Sáng" : "Chuyển sang giao diện Tối"}
+      >
+        {isDarkMode ? (
+          <Sun size={20} className="animate-pulse" />
+        ) : (
+          <Moon size={20} className="animate-bounce" style={{ animationDuration: '3s' }} />
+        )}
+      </button>
     </div>
   );
 }
