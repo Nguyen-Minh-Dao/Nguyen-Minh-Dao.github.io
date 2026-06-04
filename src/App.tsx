@@ -2,674 +2,694 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Apple, Wifi, Battery, Search, ChevronLeft, ChevronRight, 
-  Terminal, Code, Cpu, Globe, Database, Server, Sun, Moon,
+  Terminal, Code, Cpu, Globe, Database, Server, 
   User, ArrowLeft, Maximize2, Minus, X, LayoutTemplate, Folder, BookOpen,
   Zap, Lightbulb, MessageSquare, Target, Users, Landmark, Award
 } from 'lucide-react';
 
-// --- INJECTED STYLE VỚI HIỆU ỨNG HẠT VÀ NỀN CHUYỂN ĐỘNG VÔ CỰC (AURORA) ---
-const ultraStyles = `
-  @keyframes gradient-move {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+// --- INJECTED CUSTOM CSS (Animations & Styles) ---
+const globalStyles = `
+  @keyframes slide-down-clip {
+    0% { transform: translateY(-50px); clip-path: inset(100% 0 0 0); filter: blur(8px); }
+    100% { transform: translateY(0); clip-path: inset(0 0 0 0); filter: blur(0); }
   }
-  .animate-aurora {
-    background-size: 200% 200%;
-    animation: gradient-move 15s ease infinite;
+  .animate-text-clip {
+    animation: slide-down-clip 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  @keyframes float {
-    0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
-    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.6; }
-    100% { transform: translateY(0px) rotate(360deg); opacity: 0.2; }
+  @keyframes scroll-reveal {
+    0% { transform: translateY(40px) scale(0.95); filter: blur(15px); clip-path: inset(30% 0 30% 0); }
+    100% { transform: translateY(0) scale(1); filter: blur(0); clip-path: inset(0 0 0 0); }
   }
-  .floating-particle {
+  .animate-scroll {
+    animation: scroll-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hide-pre-scroll {
+    visibility: hidden;
+  }
+
+  @keyframes col-clip {
+    0% { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); filter: brightness(0); }
+    100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); filter: brightness(1); }
+  }
+  .animate-col {
+    animation: col-clip 1.5s cubic-bezier(0.8, 0, 0.2, 1) both;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 30s linear infinite;
+  }
+  .animate-marquee-slow {
+    display: flex;
+    width: max-content;
+    animation: marquee 40s linear infinite reverse;
+  }
+  .alpha-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+  .beam-btn-wrapper {
+    position: relative;
+    border-radius: 9999px;
+    padding: 1px;
+    overflow: hidden;
+    display: inline-flex;
+    cursor: pointer;
+  }
+  .beam-btn-bg {
     position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(245,158,11,0.4) 0%, transparent 70%);
-    pointer-events: none;
-    animation: float 10s infinite ease-in-out;
+    inset: -150%;
+    background: conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(100, 150, 255, 0.8) 20%, transparent 40%);
+    animation: spin 3s linear infinite;
+    clip-path: circle(0%);
+    transition: clip-path 0.4s ease;
+  }
+  .beam-btn-wrapper:hover .beam-btn-bg {
+    clip-path: circle(100%);
+  }
+  .beam-btn-content {
+    position: relative;
+    background: #171717;
+    border-radius: 9999px;
+    padding: 0.5rem 1.5rem;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    font-weight: 500;
   }
 
-  @keyframes scale-up {
-    0% { transform: scale(0.9) translateY(10px); opacity: 0; }
-    100% { transform: scale(1) translateY(0); opacity: 1; }
+  .carousel-container {
+    perspective: 1000px;
+    transform-style: preserve-3d;
   }
-  .animate-scale-up {
-    animation: scale-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .carousel-card {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+  .mac-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  .mac-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .mac-scrollbar::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 4px;
   }
 `;
 
-// Hộp thẻ phát sáng nâng cao thế hệ mới (Interactive Spotlight Card)
-function PremiumSpotlightCard({ children, className = '' }) {
+// --- COMPONENTS ---
+
+const AnimatedText = ({ text, className = "" }) => {
+  return (
+    <span className={`inline-flex flex-nowrap ${className}`}>
+      {text.split('').map((char, i) => (
+        <span
+          key={i}
+          className="animate-text-clip inline-block whitespace-pre"
+          style={{ animationDelay: `${i * 0.05}s` }}
+        >
+          {char}
+        </span>
+      ))}
+    </span>
+  );
+};
+
+const ScrollReveal = ({ children, delay = 0, className = "" }) => {
+  const [inView, setInView] = useState(false);
+  const ref = useRef();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`${inView ? 'animate-scroll' : 'hide-pre-scroll'} ${className}`}
+      style={{ animationDelay: `${delay}s` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+const BeamButton = ({ children, onClick, icon: Icon }) => (
+  <div className="beam-btn-wrapper" onClick={onClick}>
+    <div className="beam-btn-bg" />
+    <div className="beam-btn-content">
+      {Icon && <Icon size={18} />}
+      {children}
+    </div>
+  </div>
+);
+
+const FlashlightCard = ({ children, className = "", onClick }) => {
   const cardRef = useRef(null);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const [isFocused, setIsFocused] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e) => {
-    if (cardRef.current) {
-      const rect = cardRef.current.getBoundingClientRect();
-      setCoords({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
   return (
     <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsFocused(true)}
-      onMouseLeave={() => setIsFocused(false)}
-      className={`relative overflow-hidden rounded-2xl border transition-all duration-300 bg-neutral-900/50 border-neutral-800/80 hover:border-amber-500/30 hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] backdrop-blur-xl ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={onClick}
+      className={`relative overflow-hidden rounded-xl border border-white/10 bg-neutral-900/60 backdrop-blur-md cursor-pointer group ${className}`}
     >
-      <div
-        className="pointer-events-none absolute -inset-px rounded-2xl transition-opacity duration-300"
-        style={{
-          opacity: isFocused ? 1 : 0,
-          background: `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, rgba(245,158,11,0.15), transparent 80%)`,
-        }}
-      />
-      <div className="relative z-10 p-6">{children}</div>
+      {isHovered && (
+        <>
+          <div
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{
+              background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.06), transparent 50%)`,
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none z-10 p-[1px] rounded-xl"
+            style={{
+              background: `radial-gradient(300px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.4), transparent 50%)`,
+              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+            }}
+          />
+        </>
+      )}
+      <div className="relative z-20 h-full p-6 flex flex-col">{children}</div>
     </div>
   );
-}
+};
+
+const AppleLogo = ({ className = "" }) => (
+  <svg viewBox="0 0 384 512" fill="currentColor" height="14" width="14" className={className}>
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+  </svg>
+);
+
+const TopBar = ({ activeTab }) => {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const appName = 
+    activeTab === 'home' || activeTab === 'project_detail' ? 'Dự án' : 
+    activeTab === 'about' ? 'Giới thiệu' : 'Tổng kết';
+
+  return (
+    <div className="h-7 w-full bg-neutral-900/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 text-[13px] font-medium text-neutral-300 z-50 relative">
+      <div className="flex items-center space-x-4 cursor-default">
+        <AppleLogo className="hover:text-white transition-colors" />
+        <span className="font-bold text-white">{appName}</span>
+        <span className="hover:text-white transition-colors hidden sm:inline-block">File</span>
+        <span className="hover:text-white transition-colors hidden sm:inline-block">Edit</span>
+        <span className="hover:text-white transition-colors hidden sm:inline-block">View</span>
+        <span className="hover:text-white transition-colors hidden md:inline-block">Window</span>
+        <span className="hover:text-white transition-colors hidden md:inline-block">Help</span>
+      </div>
+      <div className="flex items-center space-x-4 cursor-default">
+        <Wifi size={14} />
+        <span>{time.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
+        <span>{time.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+    </div>
+  );
+};
+
+// --- MAIN APPLICATION ---
 
 export default function App() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [time, setTime] = useState('');
-  const [currentTab, setCurrentTab] = useState('profile');
-  const [selectedWeek, setSelectedWeek] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [dockHoveredIdx, setDockHoveredIdx] = useState(null);
+  const [activeTab, setActiveTab] = useState('about'); // Đổi tab mặc định thành 'about'
+  const [selectedProject, setSelectedProject] = useState(null);
 
-  // Hiệu ứng hạt bụi chuyển động ngẫu nhiên phía sau
-  const [particles, setParticles] = useState([]);
-  useEffect(() => {
-    const generatedParticles = Array.from({ length: 15 }).map((_, i) => ({
-      id: i,
-      size: Math.random() * 80 + 40,
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      delay: `${Math.random() * 5}s`,
-      duration: `${Math.random() * 10 + 10}s`,
-    }));
-    setParticles(generatedParticles);
-  }, []);
-
-  // Lấy thời gian thực
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTime(now.toLocaleDateString('vi-VN', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ''));
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Tiêm CSS nâng cao
-  useEffect(() => {
-    const styleEl = document.createElement('style');
-    styleEl.innerHTML = ultraStyles;
-    document.head.appendChild(styleEl);
-    return () => {
-      document.head.removeChild(styleEl);
-    };
-  }, []);
-
-  // Dữ liệu học tập 15 tuần
-  const weeksData = [
-    {
-      id: 1,
-      title: "Tuần 1: Nhập môn Trí tuệ Nhân tạo & Tạo lập tài khoản",
-      date: "04/09/2024",
-      highlight: "Làm quen với AI, thiết lập tài khoản ChatGPT và tìm hiểu các nguyên tắc cốt lõi.",
-      content: {
-        intro: "Tuần đầu tiên mở ra cánh cửa vào thế giới Trí tuệ Nhân tạo, giúp tôi định hình lại tư duy học tập trong kỷ nguyên số.",
-        keyTakeaway: "Hiểu rõ sự khác biệt giữa AI truyền thống và Generative AI. Nắm vững cách thức hoạt động cơ bản của mô hình ngôn ngữ lớn (LLM).",
-        exercises: [
-          { name: "Bài tập 1: Khởi tạo tài khoản & Thử nghiệm Prompt cơ bản", desc: "Đăng ký thành công tài khoản ChatGPT, thực hành viết các câu lệnh đơn giản để hỏi đáp thông tin cơ bản về bản thân.", link: "#" },
-          { name: "Bài tập 2: Phân tích case-study ứng dụng AI", desc: "Tìm kiếm và tóm tắt 3 bài báo khoa học nói về lợi ích và thách thức khi sinh viên sử dụng AI.", link: "#" }
-        ]
-      }
+  // DATA DỰ ÁN GIỮ NGUYÊN
+  const gridProjects = [
+    { 
+      id: 1, 
+      title: 'Thực hành File Explorer', 
+      category: 'Kỹ năng hệ điều hành',
+      icon: Folder,
+      color: 'text-yellow-400',
+      img: 'https://hoanghamobile.com/tin-tuc/wp-content/uploads/2024/03/file-explorer.jpg', 
+      desc: 'Hướng dẫn chi tiết các thao tác quản lý tệp tin và thư mục cơ bản trên hệ điều hành Windows.',
+      content: [
+        { type: 'step', heading: 'Mở File Explorer', text: 'Nhấn tổ hợp phím Windows + E hoặc nhấp vào biểu tượng thư mục màu vàng trên thanh tác vụ.', images: ['https://i.postimg.cc/sXnfsQk4/image.png'] },
+        { type: 'step', heading: 'Truy cập ổ đĩa/thư mục', text: 'Ở cột bên trái, nhấp vào This PC, sau đó nhấp đúp vào một ổ đĩa không phải ổ hệ thống (ví dụ: ổ D: hoặc E:). Nếu chỉ có ổ C:, hãy vào thư mục Documents.', images: ['https://i.postimg.cc/RVxC9B8L/image.png'] },
+        { type: 'step', heading: 'Tạo thư mục mới', text: 'Nhấp chuột phải vào một khoảng trống -> chọn New -> Folder. Đặt tên thư mục là ThucHanh_hotensinhvien (ví dụ: ThucHanh_NguyenVanA). Nhấn Enter.', images: ['https://i.postimg.cc/N067JYWZ/image.png', 'https://i.postimg.cc/L6JkdjcP/image.png'] },
+        { type: 'step', heading: 'Vào thư mục vừa tạo', text: 'Nhấp đúp vào thư mục ThucHanh_NguyenVanA.', images: ['https://i.postimg.cc/y6b9TkDV/image.png'] },
+        { type: 'step', heading: 'Tạo tệp tin văn bản', text: 'Nhấp chuột phải vào khoảng trống -> New -> Text Document. Đặt tên là GhiChu.txt. Nhấn Enter.', images: ['https://i.postimg.cc/V65BWTc1/image.png', 'https://i.postimg.cc/6qvrDv3k/image.png'] },
+        { type: 'step', heading: 'Đổi tên tệp tin', text: 'Nhấp chuột phải vào tệp GhiChu.txt -> chọn Rename. Đổi tên thành GhiChuQuanTrong.txt. Nhấn Enter.', images: ['https://i.postimg.cc/8zPFvvGG/image.png', 'https://i.postimg.cc/tg878mxC/image.png'] },
+        { type: 'step', heading: 'Tạo thư mục con', text: 'Trong thư mục ThucHanh_NguyenVanA, nhấp chuột phải -> New -> Folder. Đặt tên là TaiLieu.', images: ['https://i.postimg.cc/59SNmtnj/image.png', 'https://i.postimg.cc/nztp48mw/image.png'] },
+        { type: 'step', heading: 'Sao chép tệp tin (Copy & Paste)', text: 'Nhấp chuột phải vào tệp GhiChuQuanTrong.txt -> chọn Copy (hoặc chọn tệp rồi nhấn Ctrl + C). Nhấp đúp vào thư mục TaiLieu, nhấp chuột phải vào khoảng trống bên trong -> chọn Paste (hoặc nhấn Ctrl + V). Bây giờ bạn có một bản sao của tệp trong thư mục TaiLieu.', images: ['https://i.postimg.cc/8c53WwZn/image.png', 'https://i.postimg.cc/281MScbL/image.png'] },
+        { type: 'step', heading: 'Di chuyển tệp tin (Cut & Paste)', text: 'Quay lại thư mục ThucHanh_NguyenVanA. Tạo một tệp mới tên là DiChuyen.txt. Nhấp chuột phải vào tệp DiChuyen.txt -> chọn Cut (hoặc chọn tệp rồi nhấn Ctrl + X). Nhấp đúp vào thư mục TaiLieu, nhấp chuột phải vào khoảng trống -> chọn Paste (hoặc nhấn Ctrl + V). Tệp gốc đã biến mất khỏi vị trí cũ và chỉ còn ở vị trí mới.', images: ['https://i.postimg.cc/NM0bPFRT/image.png', 'https://i.postimg.cc/yd55mc2k/image.png'] },
+        { type: 'step', heading: 'Xóa tệp tin', text: 'Trong thư mục TaiLieu, nhấp chuột phải vào tệp GhiChuQuanTrong.txt -> chọn Delete. Tệp sẽ được chuyển vào Thùng rác (Recycle Bin).', images: ['https://i.postimg.cc/TP1CthVp/image.png'] },
+        { type: 'step', heading: 'Xóa vĩnh viễn', text: 'Chọn tệp DiChuyen.txt, nhấn giữ phím Shift và nhấn phím Delete. Một cảnh báo sẽ hiện ra. Nếu đồng ý, tệp sẽ bị xóa vĩnh viễn mà không qua Thùng rác.', images: ['https://i.postimg.cc/G3FJJvWf/image.png'] },
+      ]
     },
-    {
-      id: 2,
-      title: "Tuần 2: Kỹ năng Prompt Engineering & Mô hình tư duy",
-      date: "11/09/2024",
-      highlight: "Khám phá các cấu trúc câu lệnh nâng cao, kỹ thuật Few-shot, Role-play và chuỗi suy nghĩ.",
-      content: {
-        intro: "Học cách giao tiếp hiệu quả với AI. Một prompt tốt quyết định 90% chất lượng câu trả lời.",
-        keyTakeaway: "Biết cách áp dụng cấu trúc Prompt chuyên nghiệp: Vai trò (Role) -> Bối cảnh (Context) -> Nhiệm vụ (Task) -> Định dạng đầu ra (Output format).",
-        exercises: [
-          { name: "Bài tập 1: Xây dựng Prompt trợ lý ảo học thuật", desc: "Tạo một prompt dài đóng vai chuyên gia hướng dẫn viết code Python, tối ưu hóa để AI giải thích từng dòng code.", link: "#" }
-        ]
-      }
+    { 
+      id: 2, 
+      title: 'Tìm kiếm và Đánh giá thông tin học thuật', 
+      category: 'Nghiên cứu khoa học',
+      icon: BookOpen,
+      color: 'text-blue-400',
+      img: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=800', 
+      desc: 'Khảo sát, phân loại và đánh giá độ tin cậy của các tài liệu chuyên ngành về vi mạch CMOS.',
+      content: [
+        { type: 'text_list', heading: 'Đề tài, phạm vi tìm kiếm', items: [ { label: 'Đề tài', value: 'Mạch khuếch đại vi sai' }, { label: 'Phạm vi tìm kiếm', value: 'Cấu trúc vi mạch CMOS' } ], images: ['https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200'] },
+        { type: 'text_list', heading: 'Tìm kiếm', items: [ { label: 'Cơ sở dữ liệu học thuật', value: 'Compact Two-Stage CMOS Operational Amplifier with Enhanced Gain and Bandwidth via Cascode and Negative Capacitance Techniques (Google Scholar)' }, { label: 'Tạp chí khoa học chuyên ngành', value: 'A Design Methodology for RF/mmWave LNAs in 22 nm FD-SOI with Cross-Coupling-Aware Nested Inductors and On-Chip Baluns' }, { label: 'Sách chuyên khảo', value: 'Design of Analog CMOS Integrated Circuits - Behzad Razavi' }, { label: 'Nguồn mở Internet', value: 'Design of OP-AMP using CMOS technology & its application (ieeexplore.ieee.org/document/7755384)' }, { label: 'Khác', value: 'Deep reinforcement learning and Bayesian optimization based OpAmp design across the CMOS process space (ScienceDirect)' } ] },
+        { type: 'table', heading: 'Đánh giá tài liệu tham khảo', headers: ['Tài liệu', 'Tác giả', 'NXB', 'Phương pháp', 'Trích dẫn'], rows: [ ['CMOS Analog Circuit Design', 'Allen, P.E.', 'Oxford', 'Quy trình thiết kế từng bước', '7000+'], ['Design of Analog CMOS ICs', 'Behzad Razavi', 'McGraw-Hill', 'Phân tích lý thuyết, mô hình hóa', '10000+'], ['A low-power low-noise CMOS amplifier', 'R.R. Harrison', 'IEEE JSSC', 'Chế tạo thực tế và đo lường', '3000+'] ] }
+      ]
     },
-    {
-      id: 3,
-      title: "Tuần 3: AI trong việc Tìm kiếm, Tóm tắt & Xử lý thông tin",
-      date: "18/09/2024",
-      highlight: "Sử dụng AI để nghiên cứu tài liệu, đọc nhanh các báo cáo PDF dài và tổng hợp từ khóa chính.",
-      content: {
-        intro: "Tối ưu hóa thời gian nghiên cứu khoa học bằng cách biến AI thành bộ lọc thông tin thông minh.",
-        keyTakeaway: "Sử dụng thành thạo các công cụ như Claude, ChatGPT để phân tích cấu trúc một file PDF dài 50 trang.",
-        exercises: [
-          { name: "Bài tập 1: Trích xuất thông tin từ báo cáo tài chính", desc: "Tải lên một file báo cáo tài chính mẫu, viết prompt để AI liệt kê doanh thu, lợi nhuận dạng bảng.", link: "#" }
-        ]
-      }
+    { 
+      id: 3, 
+      title: 'Kỹ thuật Viết Prompt và Tối ưu AI', 
+      category: 'Kỹ năng Prompt Engineering',
+      icon: Zap,
+      color: 'text-orange-400',
+      img: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800', 
+      desc: 'Phân tích và tối ưu hóa câu lệnh để khai thác tối đa hiệu quả từ các mô hình ngôn ngữ lớn (LLM).',
+      content: [
+        { type: 'text_list', heading: '1. Phân tích Prompt cơ bản', items: [ { label: 'Tóm tắt tài liệu', value: 'Sử dụng prompt cơ bản để tóm tắt một tài liệu học thuật.' }, { label: 'Giải thích khái niệm', value: 'Yêu cầu AI giải thích một khái niệm phức tạp.' }, { label: 'Tạo câu hỏi', value: 'Tạo bộ câu hỏi ôn tập cho một chủ đề.' } ], images: [ 'https://i.postimg.cc/7PSmX0TX/image.png', 'https://i.postimg.cc/RC1Lwmk4/image.png', 'https://i.postimg.cc/1thDN7Mr/image.png', 'https://i.postimg.cc/tCCWPxdS/image.png', 'https://i.postimg.cc/bw4tKFXf/image.png', 'https://i.postimg.cc/1tQNzn5v/image.png' ] },
+        { type: 'text_list', heading: '2. Phân tích Prompt cải tiến', items: [ { label: 'Tóm tắt tài liệu', value: 'Cải tiến độ chi tiết, ngữ cảnh và vai trò.' }, { label: 'Giải thích khái niệm', value: 'Ràng buộc thêm các định dạng và phân loại thông tin.' }, { label: 'Tạo câu hỏi', value: 'Áp dụng định dạng khắt khe để AI phân bổ đúng trọng số chú ý.' } ], images: [ 'https://i.postimg.cc/QdKBkkFM/image.png', 'https://i.postimg.cc/25p1HbvS/image.png', 'https://i.postimg.cc/Hxzjs6hq/image.png', 'https://i.postimg.cc/8kys2nWW/image.png', 'https://i.postimg.cc/GhVt28Xd/image.png', 'https://i.postimg.cc/nLtLK88P/image.png', 'https://i.postimg.cc/gJzk5v0p/image.png', 'https://i.postimg.cc/NFVs5Skw/image.png' ] },
+        { type: 'text_list', heading: '3. Phân tích Prompt nâng cao', items: [ { label: 'Tóm tắt nâng cao', value: 'Cung cấp yêu cầu "phải cung cấp phần giải thích chi tiết" để kích hoạt Chain-of-Thought.' }, { label: 'Giải thích khái niệm', value: 'Yêu cầu áp dụng phương pháp First Principles (Tư duy nguyên bản) để bóc tách và đơn giản hóa các thuật ngữ.' }, { label: 'Tạo câu hỏi', value: 'Áp dụng Prompt cấu trúc theo thang đo Bloom và yêu cầu AI suy luận từng bước (Step-by-step) cho mỗi lựa chọn.' } ], images: [ 'https://i.postimg.cc/GmPRCHVc/image.png', 'https://i.postimg.cc/yxJB4n4P/image.png', 'https://i.postimg.cc/J0BwdnjC/image.png', 'https://i.postimg.cc/BZdtZPYG/image.png', 'https://i.postimg.cc/3RSgLjT5/image.png', 'https://i.postimg.cc/zBBhRLgJ/image.png', 'https://i.postimg.cc/dtd50XF5/image.png', 'https://i.postimg.cc/zvhFVL94/image.png' ] },
+        { type: 'text_list', heading: '4. Tại sao Prompt cải tiến & nâng cao hiệu quả hơn?', items: [ { label: 'Giới hạn không gian dữ liệu', value: 'Khi thêm các yếu tố ngữ cảnh, vai của AI, các từ khóa, thì AI sẽ giới hạn không gian dữ liệu (latent space) vào một cụm từ vựng cụ thể, giúp tự động điều chỉnh độ phức tạp của ngôn từ.' }, { label: 'Cơ chế tự chú ý', value: 'Khi prompt yêu cầu một định dạng khắt khe, AI buộc phải phân bổ trọng số chú ý để phân loại thông tin theo đúng yêu cầu, giúp hệ thống hóa thông tin.' }, { label: 'Kỹ thuật Chain-of-Thought', value: 'Việc ép AI giải thích chi tiết sẽ tạo ra các token trung gian để diễn giải logic trước khi kết luận, giúp câu trả lời mang tính chính xác tuyệt đối.' } ] },
+        { type: 'text_list', heading: '5. Khung nguyên tắc cốt lõi: C.R.E.A.T.E Framework', items: [ { label: 'C - Character (Gán vai trò)', value: 'Luôn xác định tư cách chuyên môn cho AI.' }, { label: 'R - Request (Yêu cầu cốt lõi)', value: 'Nhiệm vụ cần phải rõ ràng, tránh đa nghĩa.' }, { label: 'E - Explanation (Giải thích bối cảnh)', value: 'Cho AI biết đầu ra sẽ được dùng để làm gì và cho ai.' }, { label: 'A - Adjustments (Ràng buộc)', value: 'Đưa ra các giới hạn về độ dài, ngôn từ hoặc những điều cấm kỵ.' }, { label: 'T - Type of Output (Định dạng đầu ra)', value: 'Chỉ định hình thức trình bày.' }, { label: 'E - Extras (Thông tin bổ sung)', value: 'Cung cấp tư duy mẫu (Few-shot) hoặc yêu cầu suy luận (Chain-of-thought).' } ] },
+        { type: 'step', heading: '6. Tư duy "Người giao việc - Thực tập sinh"', text: 'Hãy xem AI như một thực tập sinh xuất sắc nhưng không biết đọc suy nghĩ. Bạn giao việc càng chi tiết, có tiêu chí đánh giá rõ ràng, "thực tập sinh" AI càng trả về kết quả hoàn hảo ở ngay lần thử đầu tiên. Hơn nữa, hãy dùng kỹ thuật "Chia để trị": Đối với các vấn đề quá phức tạp, đừng gom tất cả vào một prompt. Hãy yêu cầu AI lập dàn ý trước, sau đó dùng các prompt tiếp theo để phát triển từng phần.', images: ['https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1200'] }
+      ]
     },
-    {
-      id: 4,
-      title: "Tuần 4: Viết và Sáng tạo nội dung với sự hỗ trợ của AI",
-      date: "25/09/2024",
-      highlight: "Ứng dụng AI vào viết email, soạn thảo bài thuyết trình và viết bài blog chuẩn SEO.",
-      content: {
-        intro: "Vượt qua hội chứng sợ trang giấy trắng bằng cách đồng sáng tạo nội dung cùng AI.",
-        keyTakeaway: "Cá nhân hóa văn văn phong của AI để bài viết có hồn, mang đậm bản sắc cá nhân.",
-        exercises: [
-          { name: "Bài tập 1: Lập đề cương chi tiết cho bài tiểu luận", desc: "Sử dụng sơ đồ tư duy kết hợp ChatGPT để lên outline cho đề tài nghiên cứu.", link: "#" }
-        ]
-      }
+    { 
+      id: 4, 
+      title: 'Báo cáo cá nhân: Trải nghiệm và Kỹ năng sử dụng Công cụ cộng tác', 
+      category: 'Kỹ năng làm việc nhóm',
+      icon: Users,
+      color: 'text-indigo-400',
+      img: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800', 
+      desc: 'Báo cáo cá nhân về trải nghiệm, ứng dụng và kỹ năng giải quyết vấn đề với các công cụ quản lý dự án và giao tiếp trực tuyến.',
+      content: [
+        { type: 'text_list', heading: 'Thông tin cá nhân', items: [ { label: 'Họ và tên', value: 'Nguyễn Minh Đạo' }, { label: 'Mã sinh viên', value: '25022158' }, { label: 'Nhóm', value: '17' } ] },
+        { type: 'text_list', heading: 'I. Lựa chọn công cụ', items: [ { label: 'Quản lý dự án', value: 'Microsoft Planner - Trực quan hóa khối lượng công việc, theo dõi tiến độ và quản lý thời hạn (deadline) của từng cá nhân.' }, { label: 'Giao tiếp nhóm', value: 'Messenger - Đảm bảo thông tin được xuyên suốt, hỗ trợ thảo luận nhanh chóng và giải quyết các vấn đề phát sinh tức thời.' }, { label: 'Lưu trữ và chia sẻ tệp', value: 'Google Drive - Xây dựng kho lưu trữ tài nguyên chung với cấu trúc khoa học, bảo mật và dễ dàng tìm kiếm.' }, { label: 'Soạn thảo tài liệu cộng tác', value: 'Google Docs - Hỗ trợ nhiều người cùng biên tập, chỉnh sửa văn bản theo thời gian thực mà không làm gián đoạn tiến trình.' } ] },
+        { type: 'step', heading: 'II. Trải nghiệm sử dụng công cụ trực tuyến', content: [ { text: 'Ngay từ giai đoạn khởi động dự án, tôi đã tham gia thiết lập không gian làm việc trên Microsoft Planner. Thay vì chỉ liệt kê công việc một cách đơn thuần, tôi đã áp dụng phương pháp Kanban, chia dự án thành các nhóm công việc cụ thể như: To-do, Doing, và Done.', images: [ 'https://i.postimg.cc/LXWhGN0F/image.png', 'https://i.postimg.cc/J795kq4W/image.png' ] }, { text: 'Nhận thức được tầm quan trọng của việc quản lý dữ liệu, tôi đã chủ động đề xuất và thiết lập hệ thống lưu trữ trên Google Drive. Tôi đã tạo ra một cấu trúc thư mục với nhiều cấp độ để tránh tình trạng lộn xộn khi số lượng tệp tin tăng lên.', text: 'Đặc biệt, các tệp tin được tải lên đều tuân thủ quy tắc đặt tên thống nhất: Tên Dự Án_Tên Người Làm_Tên Tài Liệu. Để bảo vệ dữ liệu nhưng vẫn đảm bảo sự phối hợp, tôi đã thiết lập quyền truy cập: cấp quyền "Người chỉnh sửa" cho các thành viên nhóm và "Người xem" cho các đối tượng khác.', images: [ 'https://i.postimg.cc/tJhZPF2G/image.png', 'https://i.postimg.cc/HkWcccMZ/image.png', 'https://i.postimg.cc/vmkcN0NJ/image.png', 'https://i.postimg.cc/8cVs1jDZ/image.png' ] }, { text: 'Tôi không chỉ viết phần kịch bản được giao mà còn theo dõi và góp ý cho các thành viên khác. Tôi đã tận dụng tính năng "Nhận xét" để highlight các đoạn cần chỉnh sửa và tag thành viên để họ nhận được thông báo ngay lập tức.', images: [ 'https://i.postimg.cc/qv7qMfVB/image.png', 'https://i.postimg.cc/vmgmfWZv/image.png' ] }, { text: 'Messenger được chọn làm không gian giao tiếp chính nhờ tính phổ biến. Tôi đã tham gia thảo luận cực kỳ sôi nổi, đóng góp ý kiến (hơn 10 lượt/tuần). Tôi chủ động gửi các liên kết (link) tài liệu từ Google Drive, nhắc nhở deadline từ Planner, và sẵn sàng hỗ trợ khi thành viên khác gặp khó khăn.', images: [ 'https://i.postimg.cc/y6X8m67B/image.png', 'https://i.postimg.cc/dt5QfWkK/image.png', 'https://i.postimg.cc/qRHpKSYc/image.png' ] } ] },
+        { type: 'text_list', heading: 'III. Thách thức và Giải pháp tương tác nhóm', items: [ { label: 'Thách thức 1: Trôi tin nhắn trên Messenger', value: 'Vấn đề: Các tin nhắn quan trọng như link Drive, file báo cáo dễ bị trôi đi. Khi một thành viên cần tìm lại tài liệu để làm việc, họ phải lướt lại lịch sử tin nhắn hoặc liên tục hỏi lại vào trong nhóm, mất nhiều thời gian và công sức.\nGiải pháp: Tôi sử dụng tính năng “Ghim tin nhắn" cho những thông báo, tin nhắn quan trọng. Ngoài ra, ngay từ đầu tôi đã quy định không nhắn linh tinh vào trong nhóm chat.' }, { label: 'Thách thức 2: Quản lý tập tin không hiệu quả', value: 'Vấn đề: Ban đầu, nhóm đưa lên rất nhiều file tài liệu với việc đặt tên lộn xộn kiểu "Tài liệu không có tiêu đề", "Tài liệu không có tiêu đề (1)", "tonghop", gây bối rối không biết đâu là file chuẩn nhất để làm tiếp.\nGiải pháp cá nhân áp dụng: Tôi bảo mọi người đặt tên file theo quy tắc cố định: Đặt tên file theo cú pháp “Tên nhóm_Tên người làm_Tên file”, nếu là bản chỉnh sửa thì thêm phiên bản.' } ] }
+      ]
     },
-    {
-      id: 5,
-      title: "Tuần 5: Thiết kế Slide bài giảng và Thuyết trình cùng AI",
-      date: "02/10/2024",
-      highlight: "Tìm hiểu Gamma App, Tome và cách xuất dàn ý sang PowerPoint nhanh chóng.",
-      content: {
-        intro: "Chuyển đổi ý tưởng dạng chữ thành những trang slide thuyết trình chuyên nghiệp chỉ trong tích tắc.",
-        keyTakeaway: "Cách phối hợp Canva và Gamma để thiết kế slide nhanh hơn gấp 5 lần so với làm thủ công.",
-        exercises: [
-          { name: "Bài tập 1: Tạo Slide tự động từ Outline", desc: "Sử dụng Gamma App thiết kế bộ slide 10 trang về chủ đề Lợi ích của chuyển đổi số.", link: "#" }
-        ]
-      }
+    { 
+      id: 5, 
+      title: 'Sáng tạo nội dung với AI: Gà Rán Giòn Tại Nhà', 
+      category: 'AI Content Creation',
+      icon: Target,
+      color: 'text-red-400',
+      img: 'https://images.unsplash.com/photo-1569691899455-88464f6d3ab1?auto=format&fit=crop&q=80&w=800', 
+      desc: 'Ứng dụng các công cụ AI tạo sinh (Claude, Gemini) để chuyển ngữ, biên tập bài viết công thức nấu ăn.',
+      content: [
+        { type: 'text_list', heading: '1. Tổng quan dự án', items: [ { label: 'Người thực hiện', value: 'Nguyễn Minh Đạo - 25022158' }, { label: 'Tên dự án', value: 'Bài viết công thức nấu món Gà Rán Giòn Tại Nhà' }, { label: 'Nguồn gốc', value: 'Công thức của Chef Joshua Weissman - dịch & tích hợp sang tiếng Việt' }, { label: 'Công cụ AI', value: 'Claude, Gemini, Canva AI' } ], images: [ 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=1200' ] },
+        { type: 'step', heading: '2. Giới thiệu dự án & Mục tiêu', content: [ {text: 'Dự án này là một bài viết hướng dẫn nấu ăn hoàn chỉnh về món Gà Rán Giòn Tại Nhà, được xây dựng dựa trên công thức gốc của Chef Joshua Weissman (joshuaweissman.com). Mục tiêu của dự án không chỉ là dịch thuật đơn thuần, mà là tạo ra một bài viết hoàn chỉnh bằng tiếng Việt, có giọng văn gần gũi, dễ hiểu với người đọc Việt Nam, đồng thời bổ sung mẹo thực tế từ trải nghiệm cá nhân.'}, { text: 'Để hoàn thiện sản phẩm, ba nhóm công cụ AI đã được sử dụng kết hợp: (1) Claude cho việc dịch thuật, tinh chỉnh văn phong và cấu trúc bài viết; (2) Gemini của Google cho việc sáng tạo tiêu đề và mô tả hấp dẫn; (3) Canva AI cho việc thiết kế hình ảnh minh họa phù hợp với nội dung ẩm thực.' } ] },
+        { type: 'step', heading: '3. Nguyên liệu', content: [ {text: 'Phần gà và nước ướp:'}, {text: '                  1 con gà nguyên con (khoảng 1,5 – 2 kg) – hoặc thay bằng 1 kg đùi/cánh gà tùy sở thích'}, {text: '                  480 ml sữa buttermilk (hoặc thay bằng sữa tươi + 1 muỗng canh giấm, để 10 phút)'}, {text: '                  2 muỗng canh muối hạt (kosher salt hoặc muối biển)'}, {text: '                  1 muỗng cà phê đường'}, {text: '                  1,5 muỗng cà phê bột ngọt (MSG) – tùy chọn, giúp tăng umami'}, {text: '                  1 muỗng canh bột tỏi'}, {text: '                  2 muỗng cà phê ớt paprika xông khói (smoked paprika)'}, {text: '                  1 muỗng cà phê bột ớt cayenne'}, {text: 'Phần áo bột và chiên:'}, {text: '                  3,3 lít dầu thực vật hoặc dầu hướng dương (để chiên ngập)'}, {text: '                  375 g bột mì đa dụng'}, {text: '                  60 g bột khoai tây hoặc bột bắp (giúp lớp vỏ giòn hơn)'}, {text: '                  1 muỗng canh muối hạt'}, {text: '                  1 muỗng cà phê bột ngọt'}, {text: '                  1 muỗng cà phê bột ớt cayenne'}, {text: '                  1 muỗng cà phê bột tỏi'}, {text: '                  ½ muỗng cà phê bột hành tây'}, {text: '                   2 muỗng cà phê tiêu đen xay thô'}, {text: '                   1 muỗng cà phê lá oregano sấy khô'}, { images: [ 'https://i.postimg.cc/WzHW0x8p/image.png' ] } ] },
+        { type: 'step', heading: '4. Sơ chế gà', content: [ { text: 'Đặt gà ngửa, dùng dao nhỏ sắc rạch qua phần da nối giữa đùi và ngực. Lật gà lại, bẻ phần đùi ra phía sau cho đến khi khớp bật ra. Cắt theo đường mỡ để tách rời đùi gà. Tiếp tục bẻ và cắt để tách đùi ra thành phần đùi trên (thigh) và chân (drumstick).' }, { text: 'Tách cánh gà tương tự: kéo cánh ra, bẻ cho khớp bật, rồi cắt theo đường mỡ để tách hoàn toàn.' }, { text: 'Dùng dao chặt lấy ức gà: lấy xương sống ra trước, sau đó lách dao dọc theo xương ức để tách từng miếng ức. Phần xương cốt có thể dùng để nấu nước dùng.' }, { text: 'Pha hỗn hợp nước ướp: trộn đều buttermilk, muối, đường, bột ngọt (nếu dùng), bột tỏi, paprika và cayenne trong một tô lớn. Ngâm gà vào, đảm bảo nước ướp thấm cả dưới da. Bọc kín và để tủ lạnh ít nhất 1 giờ, tốt nhất là qua đêm (tối đa 2 ngày).' } ] },
+        { type: 'step', heading: '5. Tẩm bột', content: [ { text: 'Trộn đều bột mì, bột khoai tây, muối, bột ngọt, cayenne, bột tỏi, bột hành, tiêu và oregano trong một tô lớn.' }, { text: 'Lấy gà ra khỏi nước ướp, để ráo trên vỉ. Múc ⅓ chén hỗn hợp bột vào nước ướp còn lại, khuấy đều. Nhúng tay vào nước ướp đặc này, vảy từng chút nhỏ vào bột khô rồi trộn đều – lặp lại 2 lần nữa để tạo ra những mảnh bột vụn nhỏ (đây là bí quyết tạo lớp vỏ sần sùi giòn rụm!).' }, { text: 'Nhúng từng miếng gà vào nước ướp đặc, rồi lăn qua hỗn hợp bột, ấn nhẹ để bột bám đều, kể cả dưới da. Để riêng trên khay.' } ] },
+        { type: 'step', heading: '6. Chiên gà', content: [ { text: 'Đun dầu trong nồi đáy dày (khoảng 7 lít) đến 177°C (350°F). Nên chia chiên thành 2–3 mẻ để dầu không bị nguội đột ngột.' }, { text: 'Chiên gà từng mẻ, không để nồi quá chật. Mảnh nhỏ (cánh, chân): 10–15 phút; mảnh lớn (đùi, ức): 15–20 phút. Duy trì nhiệt độ dầu 163–177°C. Gà chín khi có màu vàng nâu đẹp và nhiệt kế cắm vào phần dày nhất đọc 74°C (165°F).' }, { text: 'Vớt gà ra để ráo trên vỉ, đặt trên khay giấy thấm dầu. Để nguội 2–3 phút rồi dùng ngay.' } ] },
+        { type: 'step', heading: '7. Mẹo hay từ đầu bếp', text: 'Bí quyết tạo lớp vỏ sần sùi giòn rụm: Múc vài muỗng nước ướp đặc vào hỗn hợp bột khô, vảy và trộn đều để tạo ra những mảnh bột vụn nhỏ trước khi lăn gà. Ngoài ra, đừng bỏ qua "oyster meat" - phần ngon nhất của con gà!' }
+      ]
     },
-    {
-      id: 6,
-      title: "Tuần 6: Sáng tạo Hình ảnh với Midjourney & DALL-E 3",
-      date: "09/10/2024",
-      highlight: "Nắm vững kỹ năng mô tả không gian, ánh sáng, chất liệu để tạo ra tác phẩm nghệ thuật AI.",
-      content: {
-        intro: "Mở khóa tư duy thị giác. Ai cũng có thể trở thành họa sĩ khi biết cách điều khiển cọ vẽ AI.",
-        keyTakeaway: "Hiểu về các tham số góc máy, tiêu cự, phong cách nghệ thuật trong Prompt hình ảnh.",
-        exercises: [
-          { name: "Bài tập 1: Tạo bộ ảnh minh họa", desc: "Sử dụng DALL-E 3 để tạo ra 4 bức ảnh đồng nhất về phong cách kể về hành trình một chú robot.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 7,
-      title: "Tuần 7: Tìm hiểu về Sở hữu trí tuệ và Đạo đức AI",
-      date: "16/10/2024",
-      highlight: "Thảo luận về vấn đề đạo văn, bản quyền hình ảnh do AI tạo ra và trách nhiệm của người dùng.",
-      content: {
-        intro: "Sử dụng AI thông minh là chưa đủ, chúng ta cần phải sử dụng AI một cách tử tế và có đạo đức.",
-        keyTakeaway: "Nguyên tắc ghi nhận nguồn khi sử dụng dữ liệu từ AI. Hiểu về các rủi ro định kiến.",
-        exercises: [
-          { name: "Bài tập 1: Phân tích tranh chấp bản quyền tác phẩm", desc: "Viết bài thảo luận 500 từ về vụ kiện giữa các nghệ sĩ và Stable Diffusion.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 8,
-      title: "Tuần 8: Ôn tập giữa kỳ & Hoàn thiện kỹ năng hệ thống",
-      date: "23/10/2024",
-      highlight: "Tổng hợp toàn bộ kiến thức đã học, đánh giá năng lực ứng dụng thực tế.",
-      content: {
-        intro: "Điểm lại chặng đường 1/2 học phần, củng cố những lỗ hổng kiến thức để chuẩn bị cho các dự án lớn hơn.",
-        keyTakeaway: "Khả năng tự đánh giá và tối ưu hóa quy trình làm việc cá nhân có sự đồng hành của AI.",
-        exercises: [
-          { name: "Bài tập 1: Thiết kế cẩm nang bỏ túi Prompt Cheatsheet", desc: "Tổng hợp các câu lệnh tâm đắc nhất của bản thân thành một file tài liệu ngắn.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 9,
-      title: "Tuần 9: Phân tích dữ liệu cơ bản bằng AI (Advanced Data Analysis)",
-      date: "30/10/2024",
-      highlight: "Tải các tệp Excel, CSV lên AI để phân tích xu hướng, vẽ biểu đồ và trực quan hóa số liệu.",
-      content: {
-        intro: "Không cần giỏi viết code, bạn vẫn có thể khám phá những câu chuyện ẩn sau các con số nhờ AI.",
-        keyTakeaway: "Cách viết prompt để AI làm sạch dữ liệu lỗi, phân tích tương quan và đề xuất giải pháp.",
-        exercises: [
-          { name: "Bài tập 1: Phân tích hành vi mua sắm", desc: "Sử dụng bộ dữ liệu giả lập về doanh số cửa hàng để nhờ AI tìm ra sản phẩm bán chạy nhất.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 10,
-      title: "Tuần 10: Xây dựng Chatbot AI tùy chỉnh không dùng code",
-      date: "06/11/2024",
-      highlight: "Tìm hiểu công cụ GPTs của OpenAI, Poe để tạo trợ lý ảo giải đáp thông tin theo cơ sở dữ liệu riêng.",
-      content: {
-        intro: "Đóng gói tri thức của bạn thành một thực thể AI hoạt động 24/7.",
-        keyTakeaway: "Hiểu quy trình nạp tài liệu (Knowledge base) và định hướng hành vi cho Chatbot tùy chỉnh.",
-        exercises: [
-          { name: "Bài tập 1: Tạo GPTs Trợ lý học tập", desc: "Nạp giáo trình môn học vào GPTs cá nhân và cấu hình để bot trả lời thân thiện.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 11,
-      title: "Tuần 11: Ứng dụng AI trong học ngoại ngữ",
-      date: "13/11/2024",
-      highlight: "Luyện giao tiếp phản xạ, sửa lỗi phát âm và học ngữ cảnh từ vựng cùng AI.",
-      content: {
-        intro: "Sở hữu một giáo viên bản xứ kèm 1-1 hoàn toàn miễn phí mọi lúc mọi nơi.",
-        keyTakeaway: "Cách biến ChatGPT Voice thành người bạn trò chuyện hàng ngày để tăng phản xạ.",
-        exercises: [
-          { name: "Bài tập 1: Kịch bản mô phỏng phỏng vấn xin việc", desc: "Tạo prompt yêu cầu AI đóng vai nhà tuyển dụng Google phỏng vấn bằng Tiếng Anh.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 12,
-      title: "Tuần 12: Tự động hóa công việc văn phòng cơ bản",
-      date: "20/11/2024",
-      highlight: "Kết hợp Make, Zapier hoặc các tiện ích mở rộng để tự động gửi email, lưu trữ tài liệu.",
-      content: {
-        intro: "Giải phóng bản thân khỏi các tác vụ lặp đi lặp lại nhàm chán để tập trung vào tư duy sáng tạo.",
-        keyTakeaway: "Hiểu nguyên lý Trigger - Action trong tự động hóa quy trình làm việc kỹ thuật số.",
-        exercises: [
-          { name: "Bài tập 1: Thiết kế luồng gửi thư tự động", desc: "Xây dựng sơ đồ quy trình tự động gửi email cảm ơn khi có khách đăng ký.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 13,
-      title: "Tuần 13: Xây dựng ý tưởng khởi nghiệp (AI Startup Ideation)",
-      date: "27/11/2024",
-      highlight: "Sử dụng các mô hình SWOT, Lean Canvas kết hợp AI để định hình ý tưởng kinh doanh mới.",
-      content: {
-        intro: "Kiểm thử nhanh mức độ khả thi của một mô hình kinh doanh tiềm năng chỉ trong vòng 1 giờ.",
-        keyTakeaway: "Cách dùng AI đóng vai khách hàng khó tính để phản biện, tìm ra kẽ hở.",
-        exercises: [
-          { name: "Bài tập 1: Lập bản Lean Canvas cho dự án AI Edu", desc: "Phối hợp cùng AI viết bản kế hoạch kinh doanh tinh gọn.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 14,
-      title: "Tuần 14: Lập kế hoạch tài chính cá nhân với AI",
-      date: "04/12/2024",
-      highlight: "Quản lý dòng tiền, lập ngân sách chi tiêu tối ưu và tìm hiểu kiến thức đầu tư cơ bản.",
-      content: {
-        intro: "Làm chủ tài chính cá nhân một cách khoa học với người cố vấn thông thái.",
-        keyTakeaway: "Cách phân bổ thu nhập theo quy tắc 6 chiếc lọ thông qua bảng tính thông minh.",
-        exercises: [
-          { name: "Bài tập 1: Xây dựng kế hoạch tài chính năm 2025", desc: "Nhập số liệu thu nhập giả định, yêu cầu AI lập bảng phân bổ chi tiêu chi tiết.", link: "#" }
-        ]
-      }
-    },
-    {
-      id: 15,
-      title: "Tuần 15: Hoàn thiện Portfolio cá nhân & Tổng kết môn học",
-      date: "11/12/2024",
-      highlight: "Xây dựng website cá nhân, lưu trữ và trưng bày các thành quả học tập ấn tượng nhất.",
-      content: {
-        intro: "Thời khắc nhìn lại cả một hành trình dài bứt phá giới hạn bản thân, đóng gói tri thức số.",
-        keyTakeaway: "Kỹ năng đóng gói sản phẩm, trình bày trực quan và định vị thương hiệu cá nhân trong kỷ nguyên số.",
-        exercises: [
-          { name: "Bài tập 1: Hoàn thiện Website Portfolio", desc: "Hệ thống hóa toàn bộ bài tập 15 tuần học tập vào trang web tương tác cá nhân.", link: "#" }
-        ]
-      }
+    { 
+      id: 6, 
+      title: 'Phân tích Chính sách của Trường Đại học Công nghệ (UET) về sử dụng AI', 
+      category: 'Nghiên cứu Chính sách',
+      icon: Landmark,
+      color: 'text-emerald-400',
+      img: 'https://www.pymnts.com/wp-content/uploads/2023/08/AI-regulation.jpg', 
+      desc: 'Khảo sát và phân tích chính sách của Trường Đại học Công nghệ về liêm chính học thuật và ứng dụng AI.',
+      content: [
+        { type: 'step', heading: '1. Tổng quan chính sách hiện hành tại UET', text: 'Trường Đại học Công nghệ (UET) hiện chưa ban hành văn bản chính sách riêng về AI. Tuy nhiên, nhà trường điều chỉnh qua Quy chế đào tạo của ĐHQGHN, quy định rõ hành vi vi phạm liêm chính học thuật (sao chép, gian lận). Hướng dẫn của Bộ GD&ĐT (5/2026) cũng nhấn mạnh việc ứng dụng AI một cách minh bạch và trung thực.', images: [ 'https://trangedu.com/wp-content/uploads/2023/01/truong-dai-hoc-cong-nghe-dhqghn-tuyen-sinh.jpg.webp' ] },
+        { type: 'text_list', heading: '2. Quan điểm và đánh giá', items: [ { label: 'Vai trò cốt lõi', value: 'Tư duy con người vẫn là cốt lõi. AI chỉ là công cụ hỗ trợ xử lý dữ liệu thô, phát hiện lỗi và đưa ra kết luận vẫn thuộc về người dùng.' }, { label: 'Chính sách rõ ràng', value: 'Cần thiết lập chính sách rõ ràng để tránh gây bất an cho sinh viên. UET cần cụ thể hóa hướng dẫn cho từng môn học.' }, { label: 'Trách nhiệm cá nhân', value: 'Dù chính sách ra sao, người quyết định sử dụng AI có đạo đức hay không vẫn là sinh viên. Cần cam kết với sự trung thực học thuật.' } ], images: [ 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200' ] },
+        { type: 'step', heading: 'IV. BỘ NGUYÊN TẮC CÁ NHÂN VỀ SỬ DỤNG AI CÓ TRÁCH NHIỆM TRONG HỌC TẬP', text: 'Dựa trên phân tích chính sách, trải nghiệm thực tế và phân tích đạo đức trên, tôi xây dựng bộ 6 nguyên tắc cá nhân về sử dụng AI có trách nhiệm trong học tập và nghiên cứu:' },
+        { type: 'table', heading: 'Chi tiết 6 nguyên tắc', headers: ['#', 'Nguyên tắc', 'Áp dụng cụ thể'], rows: [ ['1', 'Tự đọc trước, AI hỗ trợ sau', 'Trước khi dùng AI tóm tắt hay phân tích tài liệu, luôn đọc ít nhất phần abstract và kết luận của tài liệu gốc. Điều này đảm bảo tôi hiểu ngữ cảnh và có thể phát hiện lỗi sai của AI.'], ['2', 'Luôn kiểm chứng số liệu và trích dẫn', 'Mọi số liệu, tên tác giả, năm xuất bản, và tuyên bố thực tế từ đầu ra AI đều phải được đối chiếu với nguồn gốc trước khi đưa vào bài nộp. Không tin tuyệt đối vào đầu ra của AI.'], ['3', 'Khai báo minh bạch và đầy đủ', 'Luôn ghi chú rõ ràng công cụ AI đã dùng, mục đích sử dụng và phần nội dung AI đóng góp. Thực hiện ngay cả khi quy định môn học không bắt buộc – đây là hành động thể hiện sự trung thực học thuật.'], ['4', 'Giữ quá trình tư duy cốt lõi cho bản thân', 'Các bước đòi hỏi tư duy phân tích cao – như xác định luận điểm chính, đánh giá tính logic của lập luận, đưa ra kết luận – luôn tự thực hiện. Dùng AI cho các bước hỗ trợ như tìm kiếm, định dạng, và kiểm tra diễn đạt.'], ['5', 'Đảm bảo kết quả phản ánh đúng năng lực thực tế', 'Trước khi nộp bài có dùng AI, tự hỏi: "Nếu giảng viên hỏi tôi về bất kỳ nội dung nào trong bài, tôi có thể giải thích và bảo vệ không?" Nếu không, cần học lại phần đó trước khi nộp.'], ['6', 'Tôn trọng giới hạn của từng môn học và ngữ cảnh', 'Đọc kỹ quy định của từng môn về AI trước khi bắt đầu bài tập. Trong trường hợp không rõ ràng, chủ động hỏi giảng viên thay vì tự ý diễn giải theo hướng có lợi cho mình.'] ] },
+        { type: 'step', heading: '4.1. Liên kết giữa nguyên tắc và phân tích đạo đức', text: 'Sáu nguyên tắc trên được xây dựng để trực tiếp giải quyết ba vấn đề đạo đức đã phân tích: Nguyên tắc 3 và 6 giải quyết ranh giới hỗ trợ/gian lận; Nguyên tắc 1 và 2 giải quyết vấn đề quyền sở hữu trí tuệ và độ chính xác; Nguyên tắc 4 và 5 bảo vệ quá trình học tập và phát triển kỹ năng thực sự.' }
+      ]
     }
   ];
 
-  const filteredWeeks = weeksData.filter(week => 
-    week.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    week.highlight.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const openProject = (proj) => {
+    setSelectedProject(proj);
+    setActiveTab('project_detail');
+  };
 
-  return (
-    <div className="min-h-screen w-full relative flex flex-col font-sans select-none overflow-hidden text-neutral-100 bg-black animate-aurora">
-      
-      {/* NỀN ĐỘNG TRỰC QUAN SỐNG ĐỘNG (Interactive Glass Gradient) */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-[#13071f] via-[#05060b] to-[#121c2c] z-0" />
-      
-      {/* Hiệu ứng các hạt hạt lấp lánh (Floating Light Particles) */}
-      {particles.map((p) => (
-        <div 
-          key={p.id}
-          className="floating-particle"
-          style={{
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            left: p.left,
-            top: p.top,
-            animationDelay: p.delay,
-            animationDuration: p.duration
-          }}
-        />
-      ))}
+  const closeProject = () => {
+    setSelectedProject(null);
+    setActiveTab('home');
+  };
 
-      {/* LƯỚI CHIỀU SÂU HIỆN ĐẠI (Tech Grid lines) */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none z-1" />
-
-      {/* --- MENU BAR GIẢ LẬP CAPTIVATING MENU BAR --- */}
-      <header className="relative z-50 flex items-center justify-between px-6 py-2.5 backdrop-blur-xl border-b border-white/5 bg-neutral-950/40 text-xs font-semibold text-neutral-200">
-        <div className="flex items-center gap-5">
-          <Apple className="w-4 h-4 cursor-pointer text-amber-500 hover:scale-110 active:scale-95 transition-all" />
-          <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">PORTFOLIO</span>
-          <span className="hidden sm:inline cursor-pointer opacity-70 hover:opacity-100 transition-opacity">Khám phá</span>
-          <span className="hidden sm:inline cursor-pointer opacity-70 hover:opacity-100 transition-opacity">Sáng tạo</span>
-          <span className="hidden md:inline cursor-pointer opacity-70 hover:opacity-100 transition-opacity">Dự án</span>
-        </div>
-        
-        <div className="flex items-center gap-5">
-          <span className="flex items-center gap-1.5 opacity-80">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[10px] tracking-wider text-emerald-400 font-bold uppercase">Online</span>
-          </span>
-          <span className="font-semibold text-neutral-300">{time || 'Đang tải...'}</span>
-        </div>
-      </header>
-
-      {/* --- WORKSPACE CHÍNH --- */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 relative z-10 overflow-hidden">
-        
-        {/* --- CỬA SỔ TRÌNH CHIẾU CAO CẤP (GLASSMORPHISM PRESET) --- */}
-        <div className="w-full max-w-6xl h-[80vh] rounded-3xl flex flex-col border border-white/10 bg-neutral-950/60 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl overflow-hidden animate-scale-up">
-          
-          {/* Windows Header (Spotlight Glass-look Header) */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-neutral-900/30">
-            <div className="flex items-center gap-2">
-              <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80 cursor-pointer hover:bg-rose-500 transition-colors" />
-              <div className="w-3.5 h-3.5 rounded-full bg-amber-500/80 cursor-pointer hover:bg-amber-500 transition-colors" />
-              <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80 cursor-pointer hover:bg-emerald-500 transition-colors" />
-            </div>
-
-            {/* Tìm kiếm phát sáng thông minh */}
-            <div className="flex items-center gap-3 w-1/3 max-w-xs">
-              <div className="relative w-full flex items-center rounded-xl px-3.5 py-1.5 text-xs bg-neutral-900/80 border border-white/5 focus-within:border-amber-500/50 focus-within:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all">
-                <Search className="w-3.5 h-3.5 mr-2 text-amber-500" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm tác phẩm..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none w-full text-xs text-neutral-200 placeholder-neutral-500"
-                />
+  const renderContentBlock = (block, i) => {
+    switch (block.type) {
+      case 'step':
+        return (
+          <div key={i} className="space-y-4 border-b border-white/5 pb-10 last:border-0">
+            <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+               <span className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 text-sm border border-blue-500/30">
+                 {i + 1}
+               </span>
+               {block.heading}
+            </h3>
+            {block.text && <p className="text-neutral-300 leading-relaxed text-lg ml-11">{block.text}</p>}
+            {block.images && block.images.map((img, imgIdx) => (
+              <div key={imgIdx} className="ml-11 rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-4 shadow-lg">
+                <img src={img} alt={block.heading} className="w-full object-contain max-h-[500px]" />
               </div>
-            </div>
-
-            <div className="w-14"></div>
-          </div>
-
-          {/* Nội dung tương tác bên trong Cửa sổ */}
-          <div className="flex-1 flex overflow-hidden">
-            
-            {/* Sidebar thiết kế tối giản, trong suốt */}
-            <aside className="w-48 md:w-56 p-4 flex flex-col gap-1.5 border-r border-white/5 bg-neutral-950/30 shrink-0">
-              <p className="text-[10px] font-bold tracking-wider text-amber-500/80 uppercase px-2 mb-2">Phân mục</p>
-              
-              <button
-                onClick={() => { setCurrentTab('profile'); setSelectedWeek(null); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 ${
-                  currentTab === 'profile'
-                    ? 'bg-amber-500 text-neutral-950 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:brightness-110'
-                    : 'text-neutral-400 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <User className="w-4 h-4" />
-                <span>Trang cá nhân</span>
-              </button>
-
-              <button
-                onClick={() => { setCurrentTab('weeks'); setSelectedWeek(null); }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 ${
-                  currentTab === 'weeks'
-                    ? 'bg-amber-500 text-neutral-950 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:brightness-110'
-                    : 'text-neutral-400 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <Folder className="w-4 h-4" />
-                <span>Kho lưu trữ AI</span>
-              </button>
-
-              <p className="text-[10px] font-bold tracking-wider text-neutral-500 uppercase px-2 mt-5 mb-2">Phát triển AI</p>
-              
-              <div className="flex-1 overflow-y-auto scrollbar-custom space-y-1 pr-1">
-                {weeksData.map((week) => (
-                  <button
-                    key={week.id}
-                    onClick={() => { setCurrentTab('weeks'); setSelectedWeek(week); }}
-                    className={`w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] transition-all duration-200 ${
-                      selectedWeek?.id === week.id
-                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold'
-                        : 'text-neutral-400 hover:bg-white/5'
-                    }`}
-                  >
-                    <span className="flex-1 truncate">Tuần {week.id}: {week.title.split(':')[1] || week.title}</span>
-                  </button>
+            ))}
+            {block.content && block.content.map((subItem, subIdx) => (
+              <div key={subIdx} className="space-y-4 mt-4">
+                {subItem.text && <p className="text-neutral-300 leading-relaxed text-lg ml-11">{subItem.text}</p>}
+                {subItem.images && subItem.images.map((img, imgIdx) => (
+                  <div key={`sub-img-${imgIdx}`} className="ml-11 rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-4 shadow-lg">
+                    <img src={img} alt={`${block.heading} phần ${subIdx + 1}`} className="w-full object-contain max-h-[500px]" />
+                  </div>
                 ))}
               </div>
-            </aside>
+            ))}
+          </div>
+        );
+      
+      case 'text_list':
+        return (
+          <div key={i} className="space-y-4 border-b border-white/5 pb-10 last:border-0">
+            <h3 className="text-2xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">{block.heading}</h3>
+            <ul className="space-y-4 ml-4">
+              {block.items.map((item, idx) => (
+                <li key={idx} className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-lg">
+                  <span className="text-neutral-400 font-medium shrink-0 sm:w-1/3 md:w-1/4">{item.label}:</span>
+                  <span className="text-neutral-200 leading-relaxed">{item.value}</span>
+                </li>
+              ))}
+            </ul>
+            {block.images && block.images.map((img, imgIdx) => (
+              <div key={imgIdx} className="rounded-xl overflow-hidden border border-white/10 bg-black/50 mt-6 shadow-lg">
+                <img src={img} alt={block.heading} className="w-full object-contain max-h-[500px]" />
+              </div>
+            ))}
+          </div>
+        );
 
-            {/* Khung nội dung chính của Finder */}
-            <main className="flex-1 overflow-y-auto p-6 md:p-8 scrollbar-custom">
+      case 'table':
+        return (
+          <div key={i} className="space-y-4 border-b border-white/5 pb-10 last:border-0">
+            <h3 className="text-2xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">{block.heading}</h3>
+            <div className="overflow-x-auto rounded-xl border border-white/10 shadow-lg bg-black/40 mac-scrollbar">
+              <table className="w-full text-left border-collapse min-w-[900px]">
+                <thead className="bg-white/5 text-neutral-300 font-semibold text-xs uppercase tracking-wider">
+                  <tr>
+                    {block.headers.map((th, idx) => (
+                      <th key={idx} className="p-4 border-b border-white/10 whitespace-nowrap">{th}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="text-neutral-300 text-[13px]">
+                  {block.rows.map((row, rIdx) => (
+                    <tr key={rIdx} className="hover:bg-white/5 border-b border-white/5 last:border-0 transition-colors">
+                      {row.map((cell, cIdx) => (
+                        <td key={cIdx} className={`p-4 align-top leading-relaxed ${cIdx === 0 ? 'font-medium text-blue-300' : ''}`}>
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const NavItem = ({ id, label, icon: Icon }) => {
+    const isActive = activeTab === id || (id === 'home' && activeTab === 'project_detail');
+    return (
+      <button 
+        onClick={() => {
+          setActiveTab(id);
+          if (id !== 'home') setSelectedProject(null);
+        }}
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+          isActive 
+            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-lg' 
+            : 'text-neutral-400 hover:bg-white/5 hover:text-neutral-200 border border-transparent'
+        }`}
+      >
+        <Icon size={18} />
+        <span className="font-medium text-sm hidden sm:block">{label}</span>
+      </button>
+    );
+  };
+
+  return (
+    <div 
+      className="min-h-screen bg-black text-neutral-200 font-sans overflow-hidden flex flex-col selection:bg-blue-500/30 relative"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="absolute inset-0 bg-black/20 z-0 pointer-events-none" />
+      <style>{globalStyles}</style>
+      <TopBar activeTab={activeTab} />
+
+      <div className="flex-1 relative flex items-center justify-center p-4 md:p-12 z-0">
+        <div className="relative z-10 w-full max-w-7xl h-[85vh] bg-gradient-to-br from-neutral-900/70 to-black/90 backdrop-blur-[50px] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08),inset_0_-1px_1px_rgba(255,255,255,0.02)] border border-white/10 flex flex-col overflow-hidden">
+          
+          {/* WINDOW HEADER */}
+          <div className="h-12 w-full bg-black/30 border-b border-white/10 flex items-center px-4 justify-between shrink-0">
+            <div className="flex space-x-2 w-1/4 sm:w-1/3">
+              <div className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 cursor-pointer flex items-center justify-center group"><X size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 cursor-pointer flex items-center justify-center group"><Minus size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 cursor-pointer flex items-center justify-center group"><Maximize2 size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
+            </div>
+            <div className="w-2/4 sm:w-1/3 text-xs sm:text-sm font-semibold text-neutral-400 flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden">
+              <LayoutTemplate size={14} className="shrink-0" /> 
+              <span className="truncate">Cá nhân hóa Portfolio</span>
+            </div>
+            <div className="flex w-1/4 sm:w-1/3 justify-end">
+              {activeTab === 'project_detail' && (
+                <button 
+                  onClick={closeProject}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/5 text-xs font-medium text-white transition-all hover:scale-105 active:scale-95"
+                >
+                  <ArrowLeft size={12} /> Quay lại
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* MAIN LAYOUT (SIDEBAR + CONTENT) */}
+          <div className="flex-1 flex overflow-hidden">
+            
+            {/* SIDEBAR NAVIGATION */}
+            <div className="w-16 sm:w-56 border-r border-white/10 bg-black/20 flex flex-col items-center sm:items-start px-2 sm:px-4 py-6 gap-3 shrink-0">
+               <NavItem id="about" label="Giới thiệu" icon={User} />
+               <NavItem id="home" label="Dự án của tôi" icon={Folder} />
+               <NavItem id="summary" label="Tổng kết" icon={Award} />
+            </div>
+
+            {/* CONTENT AREA */}
+            <div className="flex-1 overflow-y-auto mac-scrollbar relative">
               
-              {/* --- TRANG CÁ NHÂN (Ultra modern Profile) --- */}
-              {currentTab === 'profile' && (
-                <div className="space-y-8 animate-scale-up">
-                  
-                  {/* Premium Header Card */}
-                  <div className="relative overflow-hidden p-6 md:p-8 rounded-3xl border border-white/10 bg-gradient-to-r from-amber-500/10 to-orange-500/5 backdrop-blur-md">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-                    
-                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-                      <div className="relative group">
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 blur-md opacity-70 group-hover:opacity-100 transition-opacity" />
-                        <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-white/20">
-                          <img 
-                            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" 
-                            alt="Avatar" 
-                            className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+              {/* TRANG GIỚI THIỆU */}
+              {activeTab === 'about' && (
+                <div className="p-8 md:p-12 space-y-10 max-w-4xl mx-auto animate-scroll">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mt-2 pb-10 border-b border-white/10">
+                    <div className="w-40 h-40 rounded-full mb-3 shrink-0 overflow-hidden border-2 border-[#ff00ff] shadow-[0_0_15px_#ff00ff,0_0_30px_rgba(255,0,255,0.6)] flex items-center justify-center bg-black/40">
+                        <img 
+                            src="https://i.postimg.cc/Mpsf6x9B/bo-mau-be.png" 
+                            alt="Avatar"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.outerHTML = '<span class="text-white text-3xl font-bold">NMD</span>';
+                            }}
                           />
-                        </div>
+                    </div>
+                    <div className="space-y-4 text-center md:text-left overflow-hidden">
+                      <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-white whitespace-nowrap overflow-hidden text-ellipsis">
+                        <AnimatedText text="Nguyễn Minh Đạo" />
+                      </h1>
+                      <div className="text-lg md:text-xl text-blue-400 font-medium space-y-1">
+                        <p>Mã sinh viên: 25022158</p>
+                        <p>Ngành: Công nghệ Kĩ thuật Điện tử - Viễn thông</p>
                       </div>
-
-                      <div className="text-center md:text-left space-y-2">
-                        <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
-                          Đỗ Xuân Tuyên
-                        </h1>
-                        <p className="text-sm font-semibold text-amber-400 tracking-wide uppercase">
-                          AI Prompt Engineer & Sáng tạo nội dung Kỹ thuật số
-                        </p>
-                        <p className="text-xs text-neutral-400 max-w-xl leading-relaxed">
-                          Sở thích chinh phục và tối ưu hóa sức mạnh của các mô hình Generative AI để tạo nên giá trị sáng tạo thực tế, bứt phá năng suất học thuật và làm việc.
-                        </p>
-                      </div>
+                      <p className="text-neutral-400 pt-2 max-w-xl text-lg">
+                        Sở thích cá nhân: Đam mê nghiên cứu các công nghệ mới, thiết kế phần cứng vi mạch, thích đọc sách về công nghệ và khoa học máy tính.
+                      </p>
                     </div>
                   </div>
 
-                  {/* Mục tiêu & Thế mạnh */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <PremiumSpotlightCard>
-                      <h3 className="text-sm font-extrabold uppercase tracking-widest text-amber-400 mb-3 flex items-center gap-2">
-                        <Zap className="w-4 h-4 fill-current" /> Sứ mệnh học tập
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <FlashlightCard className="h-full">
+                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                        <Target className="text-blue-400" /> Định hướng phát triển
                       </h3>
-                      <p className="text-xs text-neutral-300 leading-relaxed">
-                        Hành trình học tập này giúp tôi tiếp cận với kỹ thuật chuyên sâu về cấu trúc câu lệnh (Prompt Engineering). Giúp tối ưu hóa toàn diện quá trình nghiên cứu, viết báo cáo nhanh chóng, phân tích và trực quan hóa các tập dữ liệu thực tế hiệu quả.
+                      <p className="text-neutral-300 leading-relaxed text-lg">
+                        Mục tiêu học tập của tôi là nắm vững nền tảng Điện tử - Viễn thông, đồng thời cập nhật liên tục các xu hướng công nghệ mới. Định hướng tương lai là trở thành một Kỹ sư phần cứng giỏi, có khả năng tích hợp AI vào quy trình thiết kế và tối ưu hóa hệ thống vi mạch điện tử.
                       </p>
-                    </PremiumSpotlightCard>
+                    </FlashlightCard>
 
-                    <PremiumSpotlightCard>
-                      <h3 className="text-sm font-extrabold uppercase tracking-widest text-orange-400 mb-3 flex items-center gap-2">
-                        <Lightbulb className="w-4 h-4" /> Định hướng tương lai
+                    <FlashlightCard className="h-full">
+                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                        <Globe className="text-emerald-400" /> Mục tiêu Portfolio
                       </h3>
-                      <p className="text-xs text-neutral-300 leading-relaxed">
-                        Không ngừng khám phá các mô hình AI tiên tiến nhất hiện nay để tự động hóa quy trình sản xuất thông tin, xây dựng chatbot chuyên dụng và thiết lập các hệ sinh thái khởi nghiệp số tiềm năng.
-                      </p>
-                    </PremiumSpotlightCard>
+                      <ul className="text-neutral-300 leading-relaxed text-lg space-y-3 list-disc list-inside">
+                        <li><strong>Thể hiện kỹ năng số:</strong> Số hóa toàn bộ các bài tập và dự án cá nhân một cách trực quan.</li>
+                        <li><strong>Lưu trữ & Truy cập:</strong> Tạo một không gian tập trung để dễ dàng tìm kiếm, đánh giá sự tiến bộ của bản thân qua từng giai đoạn học tập.</li>
+                        <li><strong>Chia sẻ kiến thức:</strong> Chia sẻ kinh nghiệm và các công cụ công nghệ đến bạn bè và cộng đồng.</li>
+                      </ul>
+                    </FlashlightCard>
                   </div>
+                </div>
+              )}
 
-                  {/* Thống kê năng lực (Interactive stats) */}
-                  <div className="space-y-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Thành quả đã gặt hái</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                      {[
-                        { label: "Tiến độ học tập", value: "100%", detail: "15 Tuần học hoàn thành", color: "from-amber-500 to-orange-500" },
-                        { label: "Thực hành thực tế", value: "30+", detail: "Dự án & sản phẩm AI", color: "from-purple-500 to-pink-500" },
-                        { label: "Kỹ năng chuyên biệt", value: "Master", detail: "Prompt Engineering", color: "from-emerald-500 to-teal-500" },
-                        { label: "Thời gian làm chủ", value: "120+", detail: "Giờ nghiên cứu ứng dụng", color: "from-rose-500 to-red-500" }
-                      ].map((stat, idx) => (
-                        <div key={idx} className="relative overflow-hidden p-5 rounded-2xl border border-white/5 bg-neutral-900/40 group hover:border-white/10 transition-all">
-                          <div className={`absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b ${stat.color}`} />
-                          <p className="text-[10px] text-neutral-400 font-bold uppercase">{stat.label}</p>
-                          <p className="text-2xl font-black text-white mt-1.5">{stat.value}</p>
-                          <p className="text-[10px] text-neutral-500 mt-0.5">{stat.detail}</p>
-                        </div>
+              {/* TRANG DỰ ÁN (HOME) */}
+              {activeTab === 'home' && (
+                <div className="p-8 md:p-12 space-y-10 max-w-6xl mx-auto animate-scroll">
+                  <div className="space-y-6">
+                    <h2 className="text-3xl font-bold text-white border-b border-white/10 pb-4">Kho Lưu Trữ Bài Tập & Dự Án</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                      {gridProjects.map((proj, idx) => (
+                        <ScrollReveal key={proj.id} delay={idx * 0.1}>
+                          <FlashlightCard onClick={() => openProject(proj)} className="h-full min-h-[360px] flex flex-col">
+                            <div className="h-40 -mx-6 -mt-6 mb-4 overflow-hidden border-b border-white/10 relative shrink-0">
+                                <img src={proj.img} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                            </div>
+                            <h4 className="text-lg font-bold text-white mb-2 leading-snug">{proj.title}</h4>
+                            <p className="text-neutral-400 flex-1 text-sm line-clamp-3">{proj.desc}</p>
+                            <div className="mt-4 flex items-center text-blue-400 text-sm font-medium shrink-0 group-hover:translate-x-2 transition-transform">
+                              Xem chi tiết <ArrowLeft className="ml-2 w-4 h-4 rotate-180" />
+                            </div>
+                          </FlashlightCard>
+                        </ScrollReveal>
                       ))}
                     </div>
                   </div>
-
                 </div>
               )}
 
-              {/* --- KHO LƯU TRỮ AI (Grid layout cực kì chuyên nghiệp) --- */}
-              {currentTab === 'weeks' && !selectedWeek && (
-                <div className="space-y-6 animate-scale-up">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-black text-white tracking-tight">
-                      Hồ sơ Nhật ký học tập 15 tuần
-                    </h2>
-                    <span className="text-xs text-amber-500 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-                      Chương trình đạt chuẩn xuất sắc
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {filteredWeeks.map((week) => (
-                      <div
-                        key={week.id}
-                        onClick={() => setSelectedWeek(week)}
-                        className="relative overflow-hidden p-5 rounded-2xl border border-white/5 bg-neutral-900/30 cursor-pointer hover:bg-neutral-900/50 hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all group"
-                      >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-amber-500/5 to-transparent rounded-bl-full" />
-                        
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-[10px] font-black tracking-widest text-amber-500 uppercase">Tài liệu tuần {week.id}</span>
-                          <span className="text-[10px] text-neutral-500">{week.date}</span>
-                        </div>
-                        
-                        <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors mb-2">
-                          {week.title.split(':')[1] || week.title}
-                        </h4>
-                        
-                        <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed">
-                          {week.highlight}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* --- CHI TIẾT TUẦN BẮT MẮT --- */}
-              {currentTab === 'weeks' && selectedWeek && (
-                <div className="space-y-6 animate-scale-up">
-                  <button
-                    onClick={() => setSelectedWeek(null)}
-                    className="flex items-center gap-2 text-xs font-bold py-1.5 px-3 rounded-xl border border-white/5 bg-neutral-900/80 text-neutral-400 hover:text-white hover:border-amber-500/30 transition-all"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Quay lại lưu trữ
-                  </button>
-
-                  <div className="relative overflow-hidden p-6 rounded-3xl border border-white/5 bg-gradient-to-r from-amber-500/10 to-transparent">
-                    <span className="text-[10px] font-black text-amber-400 tracking-widest uppercase">Danh mục bài giảng</span>
-                    <h2 className="text-2xl font-black text-white mt-1.5">{selectedWeek.title}</h2>
-                    <p className="text-xs text-neutral-400 mt-1">Ngày lưu trữ chính thức: {selectedWeek.date}</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2 space-y-6">
-                      <div className="p-6 rounded-2xl border border-white/5 bg-neutral-900/20">
-                        <h3 className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Tổng quan & Trải nghiệm thực tế</h3>
-                        <p className="text-xs text-neutral-300 leading-relaxed">
-                          {selectedWeek.content.intro}
-                        </p>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400">Chi tiết sản phẩm đã thực hành</h3>
-                        <div className="space-y-3.5">
-                          {selectedWeek.content.exercises.map((ex, idx) => (
-                            <div key={idx} className="relative overflow-hidden p-5 rounded-2xl border border-white/5 bg-neutral-900/40 hover:border-white/10 transition-all">
-                              <h4 className="text-xs font-extrabold text-amber-300 mb-2">{ex.name}</h4>
-                              <p className="text-xs text-neutral-300 leading-relaxed mb-4">{ex.desc}</p>
-                              <a 
-                                href={ex.link} 
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors"
-                              >
-                                Tải xuống / Xem chi tiết sản phẩm &rarr;
-                              </a>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+              {/* TRANG CHI TIẾT DỰ ÁN */}
+              {activeTab === 'project_detail' && selectedProject && (
+                <div className="animate-scroll p-8 md:p-12 max-w-5xl mx-auto space-y-8 min-h-full">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 overflow-hidden border-b border-white/10 pb-6">
+                    {selectedProject.icon && <selectedProject.icon size={48} className={`shrink-0 ${selectedProject.color}`} />}
+                    <div>
+                      <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">{selectedProject.title}</h1>
+                      {selectedProject.category && (
+                        <p className="text-blue-400 font-medium mt-2">{selectedProject.category}</p>
+                      )}
                     </div>
+                  </div>
+                  <div className="space-y-12 mt-8">
+                    {selectedProject.content && selectedProject.content.map((block, i) => renderContentBlock(block, i))}
+                  </div>
+                </div>
+              )}
 
-                    <div className="space-y-4">
-                      <div className="p-6 rounded-2xl border border-white/5 bg-neutral-900/20">
-                        <h3 className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Tư duy đúc kết</h3>
-                        <p className="text-xs text-neutral-300 leading-relaxed">
-                          {selectedWeek.content.keyTakeaway}
+              {/* TRANG TỔNG KẾT */}
+              {activeTab === 'summary' && (
+                <div className="p-8 md:p-12 space-y-10 max-w-5xl mx-auto animate-scroll">
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight border-b border-white/10 pb-6 mb-8">
+                    Tổng kết & Nhìn lại chặng đường
+                  </h1>
+                  
+                  <div className="space-y-8">
+                    <FlashlightCard className="border-l-4 border-blue-500">
+                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                        <Lightbulb className="text-blue-400" /> Trải nghiệm và Cảm nhận cá nhân
+                      </h3>
+                      <p className="text-neutral-300 leading-relaxed text-lg">
+                        Việc thực hiện dự án Portfolio này là một hành trình thực sự thú vị và bổ ích. Đây không chỉ là nơi lưu trữ các bài tập đơn thuần, mà còn là cơ hội để tôi hệ thống hóa lại toàn bộ những kiến thức, kỹ năng số đã học được trong suốt học phần. Qua từng bước xây dựng nội dung và tối ưu hiển thị, tôi cảm nhận rõ sự tiến bộ của bản thân trong tư duy tổ chức thông tin và khả năng ứng dụng công nghệ vào thực tiễn.
+                      </p>
+                    </FlashlightCard>
+
+                    <FlashlightCard className="border-l-4 border-emerald-500">
+                      <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                        <Code className="text-emerald-400" /> Những Kiến thức & Kỹ năng quan trọng nhất
+                      </h3>
+                      <ul className="text-neutral-300 leading-relaxed text-lg space-y-4">
+                        <li className="flex gap-3">
+                          <span className="text-emerald-400">✓</span>
+                          <span><strong>Kỹ năng khai thác và sử dụng AI (Prompt Engineering):</strong> Học cách tối ưu hóa câu lệnh để giao tiếp và khai thác sức mạnh của các mô hình ngôn ngữ lớn như ChatGPT, Claude, Gemini.</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="text-emerald-400">✓</span>
+                          <span><strong>Kỹ năng làm việc nhóm trực tuyến:</strong> Sử dụng thành thạo các công cụ cộng tác như Google Drive, Microsoft Planner, Google Docs để quản lý tiến độ, dữ liệu dự án hiệu quả.</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="text-emerald-400">✓</span>
+                          <span><strong>Tư duy Liêm chính học thuật:</strong> Nắm vững nguyên tắc đạo đức khi sử dụng AI, biết cách trích dẫn, khai báo nguồn và giữ lại cốt lõi tư duy của bản thân.</span>
+                        </li>
+                      </ul>
+                    </FlashlightCard>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <FlashlightCard className="border-t-4 border-yellow-500">
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                          <Award className="text-yellow-400" /> Điểm tâm đắc nhất
+                        </h3>
+                        <p className="text-neutral-300 leading-relaxed">
+                          Điều tôi tâm đắc nhất là việc vận dụng thành công các Framework (như C.R.E.A.T.E) trong việc tối ưu Prompt AI, điều này giúp tôi tiết kiệm được rất nhiều thời gian trong học tập và nghiên cứu. Bên cạnh đó, việc xây dựng được một Portfolio trực quan thế này giúp tôi cảm thấy tự hào về những nỗ lực đã bỏ ra.
                         </p>
-                      </div>
+                      </FlashlightCard>
+
+                      <FlashlightCard className="border-t-4 border-red-500">
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                          <MessageSquare className="text-red-400" /> Thách thức gặp phải
+                        </h3>
+                        <p className="text-neutral-300 leading-relaxed">
+                          Thách thức lớn nhất trong quá trình xây dựng Portfolio là việc tổng hợp và định dạng lại khối lượng nội dung đồ sộ từ nhiều bài tập khác nhau sao cho khoa học, đồng bộ và thẩm mỹ. Ngoài ra, việc làm quen với các công cụ tạo lập Website/Portfolio cũng đòi hỏi sự kiên nhẫn tìm tòi trong những ngày đầu.
+                        </p>
+                      </FlashlightCard>
                     </div>
                   </div>
                 </div>
               )}
 
-            </main>
+            </div>
           </div>
         </div>
-
-        {/* --- THANH DOCK 3D THU PHÓNG TƯƠNG TÁC (3D DOCK ZOOM) --- */}
-        <div className="mt-6 px-4 py-3 rounded-2xl border border-white/10 bg-neutral-950/60 shadow-[0_15px_40px_rgba(0,0,0,0.5)] backdrop-blur-3xl flex items-center gap-5 transition-all">
-          {[
-            { tab: 'profile', icon: User, label: "Hồ sơ cá nhân" },
-            { tab: 'weeks', icon: Folder, label: "Tài liệu học tập" },
-          ].map((item, idx) => {
-            const isHovered = dockHoveredIdx === idx;
-            const isNeighbor = dockHoveredIdx !== null && Math.abs(dockHoveredIdx - idx) === 1;
-            
-            // Thiết kế hiệu ứng thu phóng giống macOS Dock
-            let sizeClass = 'scale-100';
-            if (isHovered) sizeClass = 'scale-125 -translate-y-2';
-            else if (isNeighbor) sizeClass = 'scale-110 -translate-y-1';
-
-            return (
-              <button
-                key={item.tab}
-                onClick={() => { setCurrentTab(item.tab); setSelectedWeek(null); }}
-                onMouseEnter={() => setDockHoveredIdx(idx)}
-                onMouseLeave={() => setDockHoveredIdx(null)}
-                className={`relative p-3.5 rounded-2xl transition-all duration-300 ${
-                  currentTab === item.tab 
-                    ? 'bg-gradient-to-tr from-amber-500 to-orange-500 text-neutral-950 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
-                    : 'bg-white/5 text-neutral-400 hover:text-white'
-                } ${sizeClass}`}
-              >
-                <item.icon className="w-5.5 h-5.5" />
-                
-                {/* Tooltip */}
-                <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 bg-neutral-900 text-neutral-200 text-[10px] font-bold py-1 px-2.5 rounded-lg opacity-0 transition-opacity pointer-events-none border border-white/10 whitespace-nowrap ${
-                  isHovered ? 'opacity-100' : ''
-                }`}>
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
       </div>
     </div>
   );
