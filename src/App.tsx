@@ -4,7 +4,8 @@ import {
   Apple, Wifi, Battery, Search, ChevronLeft, ChevronRight, 
   Terminal, Code, Cpu, Globe, Database, Server, 
   User, ArrowLeft, Maximize2, Minus, X, LayoutTemplate, Folder, BookOpen,
-  Zap, Lightbulb, MessageSquare, Target, Users, Landmark, Award, Moon, Sun
+  Zap, Lightbulb, MessageSquare, Target, Users, Landmark, Award, Moon, Sun,
+  Settings, Sliders, Volume2, ShieldAlert
 } from 'lucide-react';
 
 const globalStyles = `
@@ -27,98 +28,41 @@ const globalStyles = `
     visibility: hidden;
   }
 
-  @keyframes col-clip {
-    0% { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); filter: brightness(0); }
-    100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); filter: brightness(1); }
+  @keyframes scale-up-window {
+    0% { transform: scale(0.9) translateY(40px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
   }
-  .animate-col {
-    animation: col-clip 1.5s cubic-bezier(0.8, 0, 0.2, 1) both;
-  }
-
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  .animate-marquee {
-    display: flex;
-    width: max-content;
-    animation: marquee 30s linear infinite;
-  }
-  .animate-marquee-slow {
-    display: flex;
-    width: max-content;
-    animation: marquee 40s linear infinite reverse;
-  }
-  .alpha-mask {
-    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  .animate-window-open {
+    animation: scale-up-window 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  @keyframes spin {
-    100% { transform: rotate(360deg); }
+  @keyframes dock-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
-  .beam-btn-wrapper {
-    position: relative;
-    border-radius: 9999px;
-    padding: 1px;
-    overflow: hidden;
-    display: inline-flex;
-    cursor: pointer;
-  }
-  .beam-btn-bg {
-    position: absolute;
-    inset: -150%;
-    background: conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(100, 150, 255, 0.8) 20%, transparent 40%);
-    animation: spin 3s linear infinite;
-    clip-path: circle(0%);
-    transition: clip-path 0.4s ease;
-  }
-  .beam-btn-wrapper:hover .beam-btn-bg {
-    clip-path: circle(100%);
-  }
-  .beam-btn-content {
-    position: relative;
-    background: #171717;
-    border-radius: 9999px;
-    padding: 0.5rem 1.5rem;
-    z-index: 10;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    font-weight: 500;
+  .hover-bounce:hover {
+    animation: dock-bounce 0.6s ease infinite;
   }
 
-  .carousel-container {
-    perspective: 1000px;
-    transform-style: preserve-3d;
-  }
-  .carousel-card {
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-  }
-
-  /* Định cấu hình scrollbar macOS thích ứng theo chế độ */
+  /* macOS Custom Scrollbar styling depending on theme */
   .dark-theme {
     --sb-thumb: #404040;
+    --sb-track: rgba(0, 0, 0, 0.2);
   }
   .light-theme {
     --sb-thumb: #c1c1c1;
+    --sb-track: rgba(255, 255, 255, 0.2);
   }
   .mac-scrollbar::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
   }
   .mac-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--sb-track);
+    border-radius: 4px;
   }
   .mac-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--sb-thumb, #404040);
+    background: var(--sb-thumb);
     border-radius: 4px;
   }
 `;
@@ -166,16 +110,6 @@ const ScrollReveal = ({ children, delay = 0, className = "" }) => {
     </div>
   );
 };
-
-const BeamButton = ({ children, onClick, icon: Icon }) => (
-  <div className="beam-btn-wrapper" onClick={onClick}>
-    <div className="beam-btn-bg" />
-    <div className="beam-btn-content">
-      {Icon && <Icon size={18} />}
-      {children}
-    </div>
-  </div>
-);
 
 const FlashlightCard = ({ children, className = "", onClick, isDarkMode }) => {
   const cardRef = useRef(null);
@@ -231,51 +165,47 @@ const AppleLogo = ({ className = "" }) => (
   </svg>
 );
 
-const TopBar = ({ activeTab, isDarkMode }) => {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const appName = 
-    activeTab === 'home' || activeTab === 'project_detail' ? 'Dự án' : 
-    activeTab === 'about' ? 'Giới thiệu' : 'Tổng kết';
-
-  const barBg = isDarkMode ? 'bg-neutral-900/80 border-white/10 text-neutral-300' : 'bg-white/80 border-black/10 text-neutral-700';
-  const logoColor = isDarkMode ? 'hover:text-white' : 'hover:text-black';
-  const appTextColor = isDarkMode ? 'text-white' : 'text-black';
-  const menuTextColor = isDarkMode ? 'hover:text-white' : 'hover:text-black';
-
-  return (
-    <div className={`h-7 w-full backdrop-blur-md border-b flex items-center justify-between px-4 text-[13px] font-medium transition-all duration-500 z-50 relative ${barBg}`}>
-      <div className="flex items-center space-x-4 cursor-default">
-        <AppleLogo className={`transition-colors ${logoColor}`} />
-        <span className={`font-bold ${appTextColor}`}>{appName}</span>
-        <span className={`transition-colors hidden sm:inline-block ${menuTextColor}`}>File</span>
-        <span className={`transition-colors hidden sm:inline-block ${menuTextColor}`}>Edit</span>
-        <span className={`transition-colors hidden sm:inline-block ${menuTextColor}`}>View</span>
-        <span className={`transition-colors hidden md:inline-block ${menuTextColor}`}>Window</span>
-        <span className={`transition-colors hidden md:inline-block ${menuTextColor}`}>Help</span>
-      </div>
-      <div className="flex items-center space-x-4 cursor-default">
-        <Wifi size={14} />
-        <span>{time.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
-        <span>{time.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
-      </div>
-    </div>
-  );
-};
-
-// --- MAIN APPLICATION ---
-
 export default function App() {
   const [activeTab, setActiveTab] = useState('about');
   const [selectedProject, setSelectedProject] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  
+  // Custom states inspired by macOS-style portfolios
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [controlCenterOpen, setControlCenterOpen] = useState(false);
+  const [aboutMacOpen, setAboutMacOpen] = useState(false);
+  const [windowState, setWindowState] = useState('open'); // 'open', 'minimized', 'closed'
+  const [brightness, setBrightness] = useState(100);
+  const [volume, setVolume] = useState(70);
+  const [wifiOn, setWifiOn] = useState(true);
+  const [bluetoothOn, setBluetoothOn] = useState(true);
 
-  // DATA DỰ ÁN GIỮ NGUYÊN (Sửa lỗi trùng khóa "text" ở Dự án 4)
+  // Focus Search input when spotlight opens
+  const searchInputRef = useRef(null);
+  useEffect(() => {
+    if (spotlightOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [spotlightOpen]);
+
+  // Keyboard shortcut listener for Cmd+K or Ctrl+K (Spotlight Search)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSpotlightOpen(prev => !prev);
+      } else if (e.key === 'Escape') {
+        setSpotlightOpen(false);
+        setControlCenterOpen(false);
+        setAboutMacOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // DATA DỰ ÁN GIỮ NGUYÊN 100%
   const gridProjects = [
     { 
       id: 1, 
@@ -341,29 +271,7 @@ export default function App() {
       content: [
         { type: 'text_list', heading: 'Thông tin cá nhân', items: [ { label: 'Họ và tên', value: 'Nguyễn Minh Đạo' }, { label: 'Mã sinh viên', value: '25022158' }, { label: 'Nhóm', value: '17' } ] },
         { type: 'text_list', heading: 'I. Lựa chọn công cụ', items: [ { label: 'Quản lý dự án', value: 'Microsoft Planner - Trực quan hóa khối lượng công việc, theo dõi tiến độ và quản lý thời hạn (deadline) của từng cá nhân.' }, { label: 'Giao tiếp nhóm', value: 'Messenger - Đảm bảo thông tin được xuyên suốt, hỗ trợ thảo luận nhanh chóng và giải quyết các vấn đề phát sinh tức thời.' }, { label: 'Lưu trữ và chia sẻ tệp', value: 'Google Drive - Xây dựng kho lưu trữ tài nguyên chung với cấu trúc khoa học, bảo mật và dễ dàng tìm kiếm.' }, { label: 'Soạn thảo tài liệu cộng tác', value: 'Google Docs - Hỗ trợ nhiều người cùng biên tập, chỉnh sửa văn bản theo thời gian thực mà không làm gián đoạn tiến trình.' } ] },
-        { 
-          type: 'step', 
-          heading: 'II. Trải nghiệm sử dụng công cụ trực tuyến', 
-          content: [ 
-            { 
-              text: 'Ngay từ giai đoạn khởi động dự án, tôi đã tham gia thiết lập không gian làm việc trên Microsoft Planner. Thay vì chỉ liệt kê công việc một cách đơn thuần, tôi đã áp dụng phương pháp Kanban, chia dự án thành các nhóm công việc cụ thể như: To-do, Doing, và Done.', 
-              images: [ 'https://i.postimg.cc/LXWhGN0F/image.png', 'https://i.postimg.cc/J795kq4W/image.png' ] 
-            }, 
-            { 
-              // Gộp hai giá trị text liền kề để loại bỏ hoàn toàn lỗi duplicate key "text"
-              text: 'Nhận thức được tầm quan trọng của việc quản lý dữ liệu, tôi đã chủ động đề xuất và thiết lập hệ thống lưu trữ trên Google Drive. Tôi đã tạo ra một cấu trúc thư mục với nhiều cấp độ để tránh tình trạng lộn xộn khi số lượng tệp tin tăng lên.\n\nĐặc biệt, các tệp tin được tải lên đều tuân thủ quy tắc đặt tên thống nhất: Tên Dự Án_Tên Người Làm_Tên Tài Liệu. Để bảo vệ dữ liệu nhưng vẫn đảm bảo sự phối hợp, tôi đã thiết lập quyền truy cập: cấp quyền "Người chỉnh sửa" cho các thành viên nhóm và "Người xem" cho các đối tượng khác.', 
-              images: [ 'https://i.postimg.cc/tJhZPF2G/image.png', 'https://i.postimg.cc/HkWcccMZ/image.png', 'https://i.postimg.cc/vmkcN0NJ/image.png', 'https://i.postimg.cc/8cVs1jDZ/image.png' ] 
-            }, 
-            { 
-              text: 'Tôi không chỉ viết phần kịch bản được giao mà còn theo dõi và góp ý cho các thành viên khác. Tôi đã tận dụng tính năng "Nhận xét" để highlight các đoạn cần chỉnh sửa và tag thành viên để họ nhận được thông báo ngay lập tức.', 
-              images: [ 'https://i.postimg.cc/qv7qMfVB/image.png', 'https://i.postimg.cc/vmgmfWZv/image.png' ] 
-            }, 
-            { 
-              text: 'Messenger được chọn làm không gian giao tiếp chính nhờ tính phổ biến. Tôi đã tham gia thảo luận cực kỳ sôi nổi, đóng góp ý kiến (hơn 10 lượt/tuần). Tôi chủ động gửi các liên kết (link) tài liệu từ Google Drive, nhắc nhở deadline từ Planner, và sẵn sàng hỗ trợ khi thành viên khác gặp khó khăn.', 
-              images: [ 'https://i.postimg.cc/y6X8m67B/image.png', 'https://i.postimg.cc/dt5QfWkK/image.png', 'https://i.postimg.cc/qRHpKSYc/image.png' ] 
-            } 
-          ] 
-        },
+        { type: 'step', heading: 'II. Trải nghiệm sử dụng công cụ trực tuyến', content: [ { text: 'Ngay từ giai đoạn khởi động dự án, tôi đã tham gia thiết lập không gian làm việc trên Microsoft Planner. Thay vì chỉ liệt kê công việc một cách đơn thuần, tôi đã áp dụng phương pháp Kanban, chia dự án thành các nhóm công việc cụ thể như: To-do, Doing, và Done.', images: [ 'https://i.postimg.cc/LXWhGN0F/image.png', 'https://i.postimg.cc/J795kq4W/image.png' ] }, { text: 'Nhận thức được tầm quan trọng của việc quản lý dữ liệu, tôi đã chủ động đề xuất và thiết lập hệ thống lưu trữ trên Google Drive. Tôi đã tạo ra một cấu trúc thư mục với nhiều cấp độ để tránh tình trạng lộn xộn khi số lượng tệp tin tăng lên.' }, { text: 'Đặc biệt, các tệp tin được tải lên đều tuân thủ quy tắc đặt tên thống nhất: Tên Dự Án_Tên Người Làm_Tên Tài Liệu. Để bảo vệ dữ liệu nhưng vẫn đảm bảo sự phối hợp, tôi đã thiết lập quyền truy cập: cấp quyền "Người chỉnh sửa" cho các thành viên nhóm và "Người xem" cho các đối tượng khác.', images: [ 'https://i.postimg.cc/tJhZPF2G/image.png', 'https://i.postimg.cc/HkWcccMZ/image.png', 'https://i.postimg.cc/vmkcN0NJ/image.png', 'https://i.postimg.cc/8cVs1jDZ/image.png' ] }, { text: 'Tôi không chỉ viết phần kịch bản được giao mà còn theo dõi và góp ý cho các thành viên khác. Tôi đã tận dụng tính năng "Nhận xét" để highlight các đoạn cần chỉnh sửa và tag thành viên để họ nhận được thông báo ngay lập tức.', images: [ 'https://i.postimg.cc/qv7qMfVB/image.png', 'https://i.postimg.cc/vmgmfWZv/image.png' ] }, { text: 'Messenger được chọn làm không gian giao tiếp chính nhờ tính phổ biến. Tôi đã tham gia thảo luận cực kỳ sôi nổi, đóng góp ý kiến (hơn 10 lượt/tuần). Tôi chủ động gửi các liên kết (link) tài liệu từ Google Drive, nhắc nhở deadline từ Planner, và sẵn sàng hỗ trợ khi thành viên khác gặp khó khăn.', images: [ 'https://i.postimg.cc/y6X8m67B/image.png', 'https://i.postimg.cc/dt5QfWkK/image.png', 'https://i.postimg.cc/qRHpKSYc/image.png' ] } ] },
         { type: 'text_list', heading: 'III. Thách thức và Giải pháp tương tác nhóm', items: [ { label: 'Thách thức 1: Trôi tin nhắn trên Messenger', value: 'Vấn đề: Các tin nhắn quan trọng như link Drive, file báo cáo dễ bị trôi đi. Khi một thành viên cần tìm lại tài liệu để làm việc, họ phải lướt lại lịch sử tin nhắn hoặc liên tục hỏi lại vào trong nhóm, mất nhiều thời gian và công sức.\nGiải pháp: Tôi sử dụng tính năng “Ghim tin nhắn" cho những thông báo, tin nhắn quan trọng. Ngoài ra, ngay từ đầu tôi đã quy định không nhắn linh tinh vào trong nhóm chat.' }, { label: 'Thách thức 2: Quản lý tập tin không hiệu quả', value: 'Vấn đề: Ban đầu, nhóm đưa lên rất nhiều file tài liệu với việc đặt tên lộn xộn kiểu "Tài liệu không có tiêu đề", "Tài liệu không có tiêu đề (1)", "tonghop", gây bối rối không biết đâu là file chuẩn nhất để làm tiếp.\nGiải pháp cá nhân áp dụng: Tôi bảo mọi người đặt tên file theo quy tắc cố định: Đặt tên file theo cú pháp “Tên nhóm_Tên người làm_Tên file”, nếu là bản chỉnh sửa thì thêm phiên bản.' } ] }
       ]
     },
@@ -402,6 +310,39 @@ export default function App() {
       ]
     }
   ];
+
+  const filteredSearchItems = () => {
+    if (!searchQuery) return [];
+    
+    const items = [
+      { id: 'about', title: 'Về tôi / Giới thiệu bản thân', category: 'Trang' },
+      { id: 'home', title: 'Xem toàn bộ Dự án của tôi', category: 'Trang' },
+      { id: 'summary', title: 'Báo cáo Tổng kết & Kỹ năng số', category: 'Trang' }
+    ];
+
+    gridProjects.forEach(proj => {
+      items.push({
+        id: `project_${proj.id}`,
+        title: proj.title,
+        category: `Dự án - ${proj.category}`,
+        rawProj: proj
+      });
+    });
+
+    return items.filter(i => i.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  };
+
+  const handleSearchSelect = (item) => {
+    if (item.id.startsWith('project_')) {
+      setSelectedProject(item.rawProj);
+      setActiveTab('project_detail');
+    } else {
+      setActiveTab(item.id);
+      setSelectedProject(null);
+    }
+    setSpotlightOpen(false);
+    setSearchQuery('');
+  };
 
   const openProject = (proj) => {
     setSelectedProject(proj);
@@ -504,23 +445,16 @@ export default function App() {
 
   const NavItem = ({ id, label, icon: Icon }) => {
     const isActive = activeTab === id || (id === 'home' && activeTab === 'project_detail');
-    
-    const activeClass = isDarkMode 
-      ? 'bg-blue-500/20 text-blue-400 border-blue-500/30 shadow-lg' 
-      : 'bg-blue-500/15 text-blue-600 border-blue-500/30 shadow-md';
-      
-    const inactiveClass = isDarkMode
-      ? 'text-neutral-400 hover:bg-white/5 hover:text-neutral-200 border-transparent'
-      : 'text-neutral-600 hover:bg-black/5 hover:text-neutral-900 border-transparent';
-
     return (
       <button 
         onClick={() => {
           setActiveTab(id);
           if (id !== 'home') setSelectedProject(null);
         }}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 border ${
-          isActive ? activeClass : inactiveClass
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+          isActive 
+            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-lg' 
+            : 'text-neutral-400 hover:bg-white/5 hover:text-neutral-200 border border-transparent'
         }`}
       >
         <Icon size={18} />
@@ -529,7 +463,7 @@ export default function App() {
     );
   };
 
-  // Hình nền linh hoạt dựa trên chế độ sáng/tối
+  // Adaptive background depending on theme
   const bgImage = isDarkMode 
     ? "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')"
     : "url('https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=2564&auto=format&fit=crop')";
@@ -543,247 +477,586 @@ export default function App() {
         backgroundImage: bgImage,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        filter: `brightness(${brightness}%)`
       }}
     >
-      <div className={`absolute inset-0 z-0 pointer-events-none transition-colors duration-700 ${isDarkMode ? 'bg-black/20' : 'bg-white/10'}`} />
+      <div className={`absolute inset-0 bg-black/20 z-0 pointer-events-none transition-opacity ${isDarkMode ? 'opacity-40' : 'opacity-10'}`} />
       <style>{globalStyles}</style>
-      
-      {/* Top Bar macOS */}
-      <TopBar activeTab={activeTab} isDarkMode={isDarkMode} />
 
-      <div className="flex-1 relative flex items-center justify-center p-4 md:p-12 z-0">
-        
-        {/* WINDOW CONTAINER - Thích ứng màu nền lấp lánh */}
-        <div className={`relative z-10 w-full max-w-7xl h-[85vh] backdrop-blur-[50px] rounded-xl flex flex-col overflow-hidden transition-all duration-700 border ${
-          isDarkMode 
-            ? 'bg-gradient-to-br from-neutral-900/70 to-black/90 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08),inset_0_-1px_1px_rgba(255,255,255,0.02)]' 
-            : 'bg-gradient-to-br from-white/80 to-neutral-50/90 border-black/10 shadow-[0_20px_50px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(0,0,0,0.05)]'
-        }`}>
+      {/* TOP MENU BAR */}
+      <div className={`h-7 w-full border-b flex items-center justify-between px-4 text-[13px] font-medium z-50 relative select-none ${
+        isDarkMode ? 'bg-neutral-900/80 border-white/10 text-neutral-300' : 'bg-white/80 border-black/10 text-neutral-700'
+      } backdrop-blur-md`}>
+        <div className="flex items-center space-x-4 cursor-default">
+          <button 
+            onClick={() => setAboutMacOpen(true)}
+            className="focus:outline-none focus:bg-white/15 p-1 rounded transition-colors"
+          >
+            <AppleLogo className="hover:text-white transition-colors" />
+          </button>
+          <span className="font-bold">{activeTab === 'home' || activeTab === 'project_detail' ? 'Dự án' : activeTab === 'about' ? 'Giới thiệu' : 'Tổng kết'}</span>
           
-          {/* WINDOW HEADER */}
-          <div className={`h-12 w-full border-b flex items-center px-4 justify-between shrink-0 transition-all duration-500 ${
-            isDarkMode ? 'bg-black/30 border-white/10' : 'bg-white/35 border-black/10'
-          }`}>
-            <div className="flex space-x-2 w-1/4 sm:w-1/3">
-              <div className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 cursor-pointer flex items-center justify-center group"><X size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 cursor-pointer flex items-center justify-center group"><Minus size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
-              <div className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 cursor-pointer flex items-center justify-center group"><Maximize2 size={8} className="text-black/0 group-hover:text-black/80 transition-colors" /></div>
-            </div>
-            <div className={`w-2/4 sm:w-1/3 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden transition-colors duration-500 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
-              <LayoutTemplate size={14} className="shrink-0" /> 
-              <span className="truncate">Cá nhân hóa Portfolio</span>
-            </div>
-            <div className="flex w-1/4 sm:w-1/3 justify-end">
-              {activeTab === 'project_detail' && (
-                <button 
-                  onClick={closeProject}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all hover:scale-105 active:scale-95 ${
-                    isDarkMode 
-                      ? 'bg-white/10 hover:bg-white/20 border-white/5 text-white' 
-                      : 'bg-black/5 hover:bg-black/10 border-black/5 text-neutral-800'
-                  }`}
-                >
-                  <ArrowLeft size={12} /> Quay lại
-                </button>
-              )}
-            </div>
-          </div>
+          {/* Spotlight Launcher Option in Menu */}
+          <button 
+            onClick={() => setSpotlightOpen(true)}
+            className="hover:text-white transition-colors flex items-center gap-1.5 px-1.5 py-0.5 rounded text-xs text-neutral-400 bg-white/5 border border-white/10"
+          >
+            <Search size={10} />
+            <span className="hidden sm:inline">Tìm kiếm</span>
+            <kbd className="hidden md:inline text-[9px] bg-white/10 px-1 rounded">⌘K</kbd>
+          </button>
+        </div>
 
-          {/* MAIN LAYOUT (SIDEBAR + CONTENT) */}
-          <div className="flex-1 flex overflow-hidden">
-            
-            {/* SIDEBAR NAVIGATION */}
-            <div className={`w-16 sm:w-56 border-r flex flex-col items-center sm:items-start px-2 sm:px-4 py-6 gap-3 shrink-0 transition-colors duration-500 ${
-              isDarkMode ? 'border-white/10 bg-black/20' : 'border-black/10 bg-white/20'
-            }`}>
-               <NavItem id="about" label="Giới thiệu" icon={User} />
-               <NavItem id="home" label="Dự án của tôi" icon={Folder} />
-               <NavItem id="summary" label="Tổng kết" icon={Award} />
-            </div>
-
-            {/* CONTENT AREA */}
-            <div className="flex-1 overflow-y-auto mac-scrollbar relative">
-              
-              {/* TRANG GIỚI THIỆU */}
-              {activeTab === 'about' && (
-                <div className="p-8 md:p-12 space-y-10 max-w-4xl mx-auto animate-scroll">
-                  <div className={`flex flex-col md:flex-row items-center md:items-start gap-8 mt-2 pb-10 border-b ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
-                    <div className={`w-40 h-40 rounded-full mb-3 shrink-0 overflow-hidden border-2 flex items-center justify-center transition-all duration-500 ${
-                      isDarkMode 
-                        ? 'border-[#ff00ff] shadow-[0_0_15px_#ff00ff,0_0_30px_rgba(255,0,255,0.6)] bg-black/40' 
-                        : 'border-[#ff00ff] shadow-[0_0_15px_rgba(255,0,255,0.4)] bg-neutral-100'
-                    }`}>
-                        <img 
-                            src="https://i.postimg.cc/Mpsf6x9B/bo-mau-be.png" 
-                            alt="Avatar"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.outerHTML = `<span class="text-3xl font-bold ${textMainClass}">NMD</span>`;
-                            }}
-                          />
-                    </div>
-                    <div className="space-y-4 text-center md:text-left overflow-hidden">
-                      <h1 className={`text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${textMainClass}`}>
-                        <AnimatedText text="Nguyễn Minh Đạo" />
-                      </h1>
-                      <div className={`text-lg md:text-xl font-medium space-y-1 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                        <p>Mã sinh viên: 25022158</p>
-                        <p>Ngành: Công nghệ Kĩ thuật Điện tử - Viễn thông</p>
-                      </div>
-                      <p className={`pt-2 max-w-xl text-lg ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                        Sở thích cá nhân: Đam mê nghiên cứu các công nghệ mới, thiết kế phần cứng vi mạch, thích đọc sách về công nghệ và khoa học máy tính.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FlashlightCard isDarkMode={isDarkMode} className="h-full">
-                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
-                        <Target className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> Định hướng phát triển
-                      </h3>
-                      <p className={`leading-relaxed text-lg ${textBodyClass}`}>
-                        Mục tiêu học tập của tôi là nắm vững nền tảng Điện tử - Viễn thông, đồng thời cập nhật liên tục các xu hướng công nghệ mới. Định hướng tương lai là trở thành một Kỹ sư phần cứng giỏi, có khả năng tích hợp AI vào quy trình thiết kế và tối ưu hóa hệ thống vi mạch điện tử.
-                      </p>
-                    </FlashlightCard>
-
-                    <FlashlightCard isDarkMode={isDarkMode} className="h-full">
-                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
-                        <Globe className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} /> Mục tiêu Portfolio
-                      </h3>
-                      <ul className={`leading-relaxed text-lg space-y-3 list-disc list-inside ${textBodyClass}`}>
-                        <li><strong>Thể hiện kỹ năng số:</strong> Số hóa toàn bộ các bài tập và dự án cá nhân một cách trực quan.</li>
-                        <li><strong>Lưu trữ & Truy cập:</strong> Tạo một không gian tập trung để dễ dàng tìm kiếm, đánh giá sự tiến bộ của bản thân qua từng giai đoạn học tập.</li>
-                        <li><strong>Chia sẻ kiến thức:</strong> Chia sẻ kinh nghiệm và các công cụ công nghệ đến bạn bè và cộng đồng.</li>
-                      </ul>
-                    </FlashlightCard>
-                  </div>
-                </div>
-              )}
-
-              {/* TRANG DỰ ÁN (HOME) */}
-              {activeTab === 'home' && (
-                <div className="p-8 md:p-12 space-y-10 max-w-6xl mx-auto animate-scroll">
-                  <div className="space-y-6">
-                    <h2 className={`text-3xl font-bold border-b pb-4 ${textMainClass} ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>Kho Lưu Trữ Bài Tập & Dự Án</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-                      {gridProjects.map((proj, idx) => (
-                        <ScrollReveal key={proj.id} delay={idx * 0.1}>
-                          <FlashlightCard isDarkMode={isDarkMode} onClick={() => openProject(proj)} className="h-full min-h-[360px] flex flex-col">
-                            <div className={`h-40 -mx-6 -mt-6 mb-4 overflow-hidden border-b relative shrink-0 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
-                                <img src={proj.img} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                            </div>
-                            <h4 className={`text-lg font-bold mb-2 leading-snug ${textMainClass}`}>{proj.title}</h4>
-                            <p className={`flex-1 text-sm line-clamp-3 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{proj.desc}</p>
-                            <div className={`mt-4 flex items-center text-sm font-medium shrink-0 group-hover:translate-x-2 transition-transform ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                              Xem chi tiết <ArrowLeft className="ml-2 w-4 h-4 rotate-180" />
-                            </div>
-                          </FlashlightCard>
-                        </ScrollReveal>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TRANG CHI TIẾT DỰ ÁN */}
-              {activeTab === 'project_detail' && selectedProject && (
-                <div className="animate-scroll p-8 md:p-12 max-w-5xl mx-auto space-y-8 min-h-full">
-                  <div className={`flex flex-col sm:flex-row sm:items-center gap-4 overflow-hidden border-b pb-6 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
-                    {selectedProject.icon && <selectedProject.icon size={48} className={`shrink-0 ${selectedProject.color}`} />}
-                    <div>
-                      <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight ${textMainClass}`}>{selectedProject.title}</h1>
-                      {selectedProject.category && (
-                        <p className={`font-medium mt-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>{selectedProject.category}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-12 mt-8">
-                    {selectedProject.content && selectedProject.content.map((block, i) => renderContentBlock(block, i))}
-                  </div>
-                </div>
-              )}
-
-              {/* TRANG TỔNG KẾT */}
-              {activeTab === 'summary' && (
-                <div className="p-8 md:p-12 space-y-10 max-w-5xl mx-auto animate-scroll">
-                  <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight border-b pb-6 mb-8 ${textMainClass} ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
-                    Tổng kết & Nhìn lại chặng đường
-                  </h1>
-                  
-                  <div className="space-y-8">
-                    <FlashlightCard isDarkMode={isDarkMode} className="border-l-4 border-blue-500">
-                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
-                        <Lightbulb className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> Trải nghiệm và Cảm nhận cá nhân
-                      </h3>
-                      <p className={`leading-relaxed text-lg ${textBodyClass}`}>
-                        Việc thực hiện dự án Portfolio này là một hành trình thực sự thú vị và bổ ích. Đây không chỉ là nơi lưu trữ các bài tập đơn thuần, mà còn là cơ hội để tôi hệ thống hóa lại toàn bộ những kiến thức, kỹ năng số đã học được trong suốt học phần. Qua từng bước xây dựng nội dung và tối ưu hiển thị, tôi cảm nhận rõ sự tiến bộ của bản thân trong tư duy tổ chức thông tin và khả năng ứng dụng công nghệ vào thực tiễn.
-                      </p>
-                    </FlashlightCard>
-
-                    <FlashlightCard isDarkMode={isDarkMode} className="border-l-4 border-emerald-500">
-                      <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
-                        <Code className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} /> Những Kiến thức & Kỹ năng quan trọng nhất
-                      </h3>
-                      <ul className={`leading-relaxed text-lg space-y-4 ${textBodyClass}`}>
-                        <li className="flex gap-3">
-                          <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
-                          <span><strong>Kỹ năng khai thác và sử dụng AI (Prompt Engineering):</strong> Học cách tối ưu hóa câu lệnh để giao tiếp và khai thác sức mạnh của các mô hình ngôn ngữ lớn như ChatGPT, Claude, Gemini.</span>
-                        </li>
-                        <li className="flex gap-3">
-                          <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
-                          <span><strong>Kỹ năng làm việc nhóm trực tuyến:</strong> Sử dụng thành thạo các công cụ cộng tác như Google Drive, Microsoft Planner, Google Docs để quản lý tiến độ, dữ liệu dự án hiệu quả.</span>
-                        </li>
-                        <li className="flex gap-3">
-                          <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
-                          <span><strong>Tư duy Liêm chính học thuật:</strong> Nắm vững nguyên tắc đạo đức khi sử dụng AI, biết cách trích dẫn, khai báo nguồn và giữ lại cốt lõi tư duy của bản thân.</span>
-                        </li>
-                      </ul>
-                    </FlashlightCard>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <FlashlightCard isDarkMode={isDarkMode} className="border-t-4 border-yellow-500">
-                        <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
-                          <Award className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'} /> Điểm tâm đắc nhất
-                        </h3>
-                        <p className={`leading-relaxed ${textBodyClass}`}>
-                          Điều tôi tâm đắc nhất là việc vận dụng thành công các Framework (nhu C.R.E.A.T.E) trong việc tối ưu Prompt AI, điều này giúp tôi tiết kiệm được rất nhiều thời gian trong học tập và nghiên cứu. Bên cạnh đó, việc xây dựng được một Portfolio trực quan thế này giúp tôi cảm thấy tự hào về những nỗ lực đã bỏ ra.
-                        </p>
-                      </FlashlightCard>
-
-                      <FlashlightCard isDarkMode={isDarkMode} className="border-t-4 border-red-500">
-                        <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
-                          <MessageSquare className={isDarkMode ? 'text-red-400' : 'text-red-600'} /> Thách thức gặp phải
-                        </h3>
-                        <p className={`leading-relaxed ${textBodyClass}`}>
-                          Thách thức lớn nhất trong quá trình xây dựng Portfolio là việc tổng hợp và định dạng lại khối lượng nội dung đồ sộ từ nhiều bài tập khác nhau sao cho khoa học, đồng bộ và thẩm mỹ. Ngoài ra, việc làm quen với các công cụ tạo lập Website/Portfolio cũng đòi hỏi sự kiên nhẫn tìm tòi trong những ngày đầu.
-                        </p>
-                      </FlashlightCard>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            </div>
+        <div className="flex items-center space-x-4 cursor-default">
+          {/* Control Center Trigger */}
+          <button 
+            onClick={() => setControlCenterOpen(!controlCenterOpen)}
+            className={`flex items-center gap-2 p-1 rounded-md hover:bg-white/10 transition-all ${controlCenterOpen ? 'bg-white/10' : ''}`}
+          >
+            <Wifi size={14} className={wifiOn ? 'text-blue-400' : 'text-neutral-500'} />
+            <Battery size={14} />
+            <Sliders size={14} />
+          </button>
+          
+          <div className="hidden sm:flex items-center gap-1">
+            <span>{new Date().toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
+            <span>{new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         </div>
       </div>
 
-      {/* FLOATING LIGHT/DARK THEME TOGGLE BUTTON AT BOTTOM RIGHT */}
-      <button 
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className={`fixed bottom-6 right-6 z-50 flex items-center justify-center p-3.5 rounded-full border shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md ${
-          isDarkMode 
-            ? 'bg-neutral-900/85 border-white/20 text-yellow-400 hover:bg-neutral-800' 
-            : 'bg-white/85 border-black/15 text-indigo-600 hover:bg-neutral-100'
-        }`}
-        title={isDarkMode ? "Chuyển sang giao diện Sáng" : "Chuyển sang giao diện Tối"}
-      >
-        {isDarkMode ? (
-          <Sun size={20} className="animate-pulse" />
-        ) : (
-          <Moon size={20} className="animate-bounce" style={{ animationDuration: '3s' }} />
+      {/* SPOTLIGHT SEARCH (CMD+K) MODAL */}
+      {spotlightOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-[15vh]">
+          <div className="absolute inset-0" onClick={() => setSpotlightOpen(false)} />
+          <div className="relative w-full max-w-2xl bg-neutral-900/90 border border-white/10 rounded-2xl shadow-2xl p-4 overflow-hidden animate-window-open text-white">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+              <Search className="text-neutral-400" size={20} />
+              <input 
+                ref={searchInputRef}
+                type="text" 
+                placeholder="Tìm trang, dự án hoặc báo cáo... (ví dụ: Prompt, Gà Rán)"
+                className="w-full bg-transparent border-none outline-none text-lg text-white placeholder-neutral-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <span className="text-xs bg-white/10 px-1.5 py-0.5 rounded text-neutral-400">ESC</span>
+            </div>
+
+            {/* Results */}
+            <div className="mt-3 max-h-72 overflow-y-auto mac-scrollbar">
+              {searchQuery ? (
+                filteredSearchItems().length > 0 ? (
+                  <div className="space-y-1">
+                    {filteredSearchItems().map((item, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSearchSelect(item)}
+                        className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-between group"
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm text-neutral-200 group-hover:text-white">{item.title}</span>
+                          <span className="text-xs text-neutral-500 group-hover:text-blue-200">{item.category}</span>
+                        </div>
+                        <ChevronRight size={14} className="text-neutral-500 group-hover:text-white" />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-neutral-500 text-sm">
+                    Không tìm thấy nội dung phù hợp. Thử từ khóa khác!
+                  </div>
+                )
+              ) : (
+                <div className="p-4 space-y-4">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Gợi ý tìm kiếm nhanh</span>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <button onClick={() => { setActiveTab('about'); setSpotlightOpen(false); }} className="p-2 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 text-left">👋 Về tôi</button>
+                    <button onClick={() => { setActiveTab('home'); setSpotlightOpen(false); }} className="p-2 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 text-left">📁 Các bài thực hành</button>
+                    <button onClick={() => { setSelectedProject(gridProjects[2]); setActiveTab('project_detail'); setSpotlightOpen(false); }} className="p-2 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 text-left">⚡ Prompt Engineering</button>
+                    <button onClick={() => { setSelectedProject(gridProjects[3]); setActiveTab('project_detail'); setSpotlightOpen(false); }} className="p-2 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 text-left">🤝 Kỹ năng làm việc nhóm</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ABOUT THIS MAC (Apple System Info) MODAL */}
+      {aboutMacOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center">
+          <div className="absolute inset-0" onClick={() => setAboutMacOpen(false)} />
+          <div className="relative w-full max-w-sm bg-neutral-900/95 border border-white/15 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-6 overflow-hidden animate-window-open text-white text-center">
+            
+            {/* Header / Control Bar */}
+            <div className="absolute top-3 left-3">
+              <button 
+                onClick={() => setAboutMacOpen(false)} 
+                className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-red-900 font-bold text-[8px]"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 mt-2">
+              <AppleLogo className="text-white w-14 h-14" />
+              <div>
+                <h3 className="text-lg font-bold">UET Sequoia</h3>
+                <span className="text-[11px] text-neutral-400 font-mono">Phiên bản 15.0 (Cá nhân hóa)</span>
+              </div>
+
+              {/* Hardware / Student Info Table */}
+              <div className="w-full border-t border-white/10 pt-4 text-xs space-y-2.5 text-left max-w-[280px]">
+                <div className="flex justify-between">
+                  <span className="text-neutral-400 font-semibold">Tên Chủ Sở Hữu</span>
+                  <span className="font-mono">Nguyễn Minh Đạo</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-400 font-semibold">Mã Sinh Viên</span>
+                  <span className="font-mono text-blue-400">25022158</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-400 font-semibold">Phân Khúc/Ngành</span>
+                  <span className="font-mono">Điện tử - Viễn thông</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-400 font-semibold">Đại học</span>
+                  <span className="font-mono">UET - ĐHQGHN</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-400 font-semibold">Serial Number</span>
+                  <span className="font-mono text-emerald-400">CLASS_17_SEC_UET</span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setAboutMacOpen(false)}
+                className="mt-4 px-4 py-1.5 bg-white/10 hover:bg-white/15 border border-white/10 text-xs rounded-full"
+              >
+                Đóng thông tin
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONTROL CENTER DROPDOWN */}
+      {controlCenterOpen && (
+        <div className="absolute top-8 right-4 z-50 w-80 bg-neutral-950/90 border border-white/15 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] p-4 text-white animate-window-open select-none">
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {/* Wifi Toggle */}
+            <button 
+              onClick={() => setWifiOn(!wifiOn)} 
+              className={`p-3 rounded-xl flex items-center gap-3 transition-colors ${wifiOn ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white/5 hover:bg-white/10'}`}
+            >
+              <Wifi size={18} />
+              <div className="text-left">
+                <p className="text-xs font-semibold">Wi-Fi</p>
+                <p className="text-[10px] opacity-75">{wifiOn ? 'Đang bật' : 'Đã tắt'}</p>
+              </div>
+            </button>
+
+            {/* Bluetooth Toggle */}
+            <button 
+              onClick={() => setBluetoothOn(!bluetoothOn)} 
+              className={`p-3 rounded-xl flex items-center gap-3 transition-colors ${bluetoothOn ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white/5 hover:bg-white/10'}`}
+            >
+              <Cpu size={18} />
+              <div className="text-left">
+                <p className="text-xs font-semibold">Thiết bị</p>
+                <p className="text-[10px] opacity-75">{bluetoothOn ? 'Hoạt động' : 'Tạm dừng'}</p>
+              </div>
+            </button>
+          </div>
+
+          {/* Slider Controls */}
+          <div className="space-y-3 border-t border-white/10 pt-3">
+            {/* Screen Brightness Slider */}
+            <div>
+              <div className="flex justify-between text-xs text-neutral-400 mb-1">
+                <span>Độ sáng màn hình</span>
+                <span className="font-mono">{brightness}%</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                <Sun size={14} className="text-yellow-400" />
+                <input 
+                  type="range" 
+                  min="50" 
+                  max="100" 
+                  value={brightness} 
+                  onChange={(e) => setBrightness(e.target.value)}
+                  className="w-full accent-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Volume Slider */}
+            <div>
+              <div className="flex justify-between text-xs text-neutral-400 mb-1">
+                <span>Âm lượng ảo</span>
+                <span className="font-mono">{volume}%</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                <Volume2 size={14} className="text-blue-400" />
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value={volume} 
+                  onChange={(e) => setVolume(e.target.value)}
+                  className="w-full accent-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 border-t border-white/10 pt-3 flex items-center justify-between text-xs">
+            <span className="text-neutral-400">Giao diện hệ thống</span>
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/5"
+            >
+              {isDarkMode ? <Sun size={12} className="text-yellow-400" /> : <Moon size={12} className="text-indigo-400" />}
+              <span>{isDarkMode ? 'Sáng' : 'Tối'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* MAIN LAYOUT WRAPPER */}
+      <div className="flex-1 relative flex items-center justify-center p-4 md:p-12 z-0">
+        
+        {/* WINDOW CONTAINER */}
+        {windowState !== 'closed' && (
+          <div 
+            className={`relative z-10 w-full max-w-7xl h-[85vh] backdrop-blur-[50px] rounded-xl flex flex-col overflow-hidden transition-all duration-700 border shadow-2xl ${
+              windowState === 'minimized' ? 'opacity-0 scale-50 translate-y-[200px] pointer-events-none' : 'opacity-100 scale-100'
+            } ${
+              isDarkMode 
+                ? 'bg-gradient-to-br from-neutral-900/70 to-black/90 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.08)]' 
+                : 'bg-gradient-to-br from-white/80 to-neutral-50/90 border-black/10 shadow-[0_20px_50px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.8)]'
+            }`}
+          >
+            
+            {/* WINDOW HEADER (Traffic Lights & Controls) */}
+            <div className={`h-12 w-full border-b flex items-center px-4 justify-between shrink-0 transition-all duration-500 ${
+              isDarkMode ? 'bg-black/30 border-white/10' : 'bg-white/35 border-black/10'
+            }`}>
+              <div className="flex space-x-2 w-1/4 sm:w-1/3">
+                {/* Traffic buttons actually interactive */}
+                <button 
+                  onClick={() => setWindowState('closed')}
+                  className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 cursor-pointer flex items-center justify-center group focus:outline-none"
+                  title="Đóng ứng dụng"
+                >
+                  <X size={8} className="text-black/0 group-hover:text-black/80 transition-colors" />
+                </button>
+                <button 
+                  onClick={() => setWindowState('minimized')}
+                  className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 cursor-pointer flex items-center justify-center group focus:outline-none"
+                  title="Thu nhỏ vào Dock"
+                >
+                  <Minus size={8} className="text-black/0 group-hover:text-black/80 transition-colors" />
+                </button>
+                <button 
+                  onClick={() => {
+                    const el = document.documentElement;
+                    if (!document.fullscreenElement) {
+                      el.requestFullscreen().catch(() => {});
+                    } else {
+                      document.exitFullscreen();
+                    }
+                  }}
+                  className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 cursor-pointer flex items-center justify-center group focus:outline-none"
+                  title="Chế độ toàn màn hình"
+                >
+                  <Maximize2 size={8} className="text-black/0 group-hover:text-black/80 transition-colors" />
+                </button>
+              </div>
+
+              <div className={`w-2/4 sm:w-1/3 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden transition-colors duration-500 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                <LayoutTemplate size={14} className="shrink-0" /> 
+                <span className="truncate">Cá nhân hóa Portfolio</span>
+              </div>
+
+              <div className="flex w-1/4 sm:w-1/3 justify-end">
+                {activeTab === 'project_detail' && (
+                  <button 
+                    onClick={closeProject}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all hover:scale-105 active:scale-95 ${
+                      isDarkMode 
+                        ? 'bg-white/10 hover:bg-white/20 border-white/5 text-white' 
+                        : 'bg-black/5 hover:bg-black/10 border-black/5 text-neutral-800'
+                    }`}
+                  >
+                    <ArrowLeft size={12} /> Quay lại
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* MAIN LAYOUT (SIDEBAR + CONTENT) */}
+            <div className="flex-1 flex overflow-hidden">
+              
+              {/* SIDEBAR NAVIGATION */}
+              <div className={`w-16 sm:w-56 border-r flex flex-col items-center sm:items-start px-2 sm:px-4 py-6 gap-3 shrink-0 transition-colors duration-500 ${
+                isDarkMode ? 'border-white/10 bg-black/20' : 'border-black/10 bg-white/20'
+              }`}>
+                 <NavItem id="about" label="Giới thiệu" icon={User} />
+                 <NavItem id="home" label="Dự án của tôi" icon={Folder} />
+                 <NavItem id="summary" label="Tổng kết" icon={Award} />
+              </div>
+
+              {/* CONTENT AREA */}
+              <div className="flex-1 overflow-y-auto mac-scrollbar relative">
+                
+                {/* TRANG GIỚI THIỆU */}
+                {activeTab === 'about' && (
+                  <div className="p-8 md:p-12 space-y-10 max-w-4xl mx-auto animate-scroll">
+                    <div className={`flex flex-col md:flex-row items-center md:items-start gap-8 mt-2 pb-10 border-b ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
+                      <div className={`w-40 h-40 rounded-full mb-3 shrink-0 overflow-hidden border-2 flex items-center justify-center transition-all duration-500 ${
+                        isDarkMode 
+                          ? 'border-[#ff00ff] shadow-[0_0_15px_#ff00ff,0_0_30px_rgba(255,0,255,0.6)] bg-black/40' 
+                          : 'border-[#ff00ff] shadow-[0_0_15px_rgba(255,0,255,0.4)] bg-neutral-100'
+                      }`}>
+                          <img 
+                              src="https://i.postimg.cc/Mpsf6x9B/bo-mau-be.png" 
+                              alt="Avatar"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.outerHTML = `<span class="text-3xl font-bold ${textMainClass}">NMD</span>`;
+                              }}
+                            />
+                      </div>
+                      <div className="space-y-4 text-center md:text-left overflow-hidden">
+                        <h1 className={`text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${textMainClass}`}>
+                          <AnimatedText text="Nguyễn Minh Đạo" />
+                        </h1>
+                        <div className={`text-lg md:text-xl font-medium space-y-1 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                          <p>Mã sinh viên: 25022158</p>
+                          <p>Ngành: Công nghệ Kĩ thuật Điện tử - Viễn thông</p>
+                        </div>
+                        <p className={`pt-2 max-w-xl text-lg ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                          Sở thích cá nhân: Đam mê nghiên cứu các công nghệ mới, thiết kế phần cứng vi mạch, thích đọc sách về công nghệ và khoa học máy tính.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <FlashlightCard isDarkMode={isDarkMode} className="h-full">
+                        <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                          <Target className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> Định hướng phát triển
+                        </h3>
+                        <p className={`leading-relaxed text-lg ${textBodyClass}`}>
+                          Mục tiêu học tập của tôi là nắm vững nền tảng Điện tử - Viễn thông, đồng thời cập nhật liên tục các xu hướng công nghệ mới. Định hướng tương lai là trở thành một Kỹ sư phần cứng giỏi, có khả năng tích hợp AI vào quy trình thiết kế và tối ưu hóa hệ thống vi mạch điện tử.
+                        </p>
+                      </FlashlightCard>
+
+                      <FlashlightCard isDarkMode={isDarkMode} className="h-full">
+                        <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                          <Globe className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} /> Mục tiêu Portfolio
+                        </h3>
+                        <ul className={`leading-relaxed text-lg space-y-3 list-disc list-inside ${textBodyClass}`}>
+                          <li><strong>Thể hiện kỹ năng số:</strong> Số hóa toàn bộ các bài tập và dự án cá nhân một cách trực quan.</li>
+                          <li><strong>Lưu trữ & Truy cập:</strong> Tạo một không gian tập trung để dễ dàng tìm kiếm, đánh giá sự tiến bộ của bản thân qua từng giai đoạn học tập.</li>
+                          <li><strong>Chia sẻ kiến thức:</strong> Chia sẻ kinh nghiệm và các công cụ công nghệ đến bạn bè và cộng đồng.</li>
+                        </ul>
+                      </FlashlightCard>
+                    </div>
+                  </div>
+                )}
+
+                {/* TRANG DỰ ÁN (HOME) */}
+                {activeTab === 'home' && (
+                  <div className="p-8 md:p-12 space-y-10 max-w-6xl mx-auto animate-scroll">
+                    <div className="space-y-6">
+                      <h2 className={`text-3xl font-bold border-b pb-4 ${textMainClass} ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>Kho Lưu Trữ Bài Tập & Dự Án</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                        {gridProjects.map((proj, idx) => (
+                          <ScrollReveal key={proj.id} delay={idx * 0.1}>
+                            <FlashlightCard isDarkMode={isDarkMode} onClick={() => openProject(proj)} className="h-full min-h-[360px] flex flex-col">
+                              <div className={`h-40 -mx-6 -mt-6 mb-4 overflow-hidden border-b relative shrink-0 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
+                                  <img src={proj.img} alt={proj.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                              </div>
+                              <h4 className={`text-lg font-bold mb-2 leading-snug ${textMainClass}`}>{proj.title}</h4>
+                              <p className={`flex-1 text-sm line-clamp-3 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{proj.desc}</p>
+                              <div className={`mt-4 flex items-center text-sm font-medium shrink-0 group-hover:translate-x-2 transition-transform ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                                Xem chi tiết <ArrowLeft className="ml-2 w-4 h-4 rotate-180" />
+                              </div>
+                            </FlashlightCard>
+                          </ScrollReveal>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TRANG CHI TIẾT DỰ ÁN */}
+                {activeTab === 'project_detail' && selectedProject && (
+                  <div className="animate-scroll p-8 md:p-12 max-w-5xl mx-auto space-y-8 min-h-full">
+                    <div className={`flex flex-col sm:flex-row sm:items-center gap-4 overflow-hidden border-b pb-6 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
+                      {selectedProject.icon && <selectedProject.icon size={48} className={`shrink-0 ${selectedProject.color}`} />}
+                      <div>
+                        <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight ${textMainClass}`}>{selectedProject.title}</h1>
+                        {selectedProject.category && (
+                          <p className={`font-medium mt-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>{selectedProject.category}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-12 mt-8">
+                      {selectedProject.content && selectedProject.content.map((block, i) => renderContentBlock(block, i))}
+                    </div>
+                  </div>
+                )}
+
+                {/* TRANG TỔNG KẾT */}
+                {activeTab === 'summary' && (
+                  <div className="p-8 md:p-12 space-y-10 max-w-5xl mx-auto animate-scroll">
+                    <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight border-b pb-6 mb-8 ${textMainClass} ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
+                      Tổng kết & Nhìn lại chặng đường
+                    </h1>
+                    
+                    <div className="space-y-8">
+                      <FlashlightCard isDarkMode={isDarkMode} className="border-l-4 border-blue-500">
+                        <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                          <Lightbulb className={isDarkMode ? 'text-blue-400' : 'text-blue-600'} /> Trải nghiệm và Cảm nhận cá nhân
+                        </h3>
+                        <p className={`leading-relaxed text-lg ${textBodyClass}`}>
+                          Việc thực hiện dự án Portfolio này là một hành trình thực sự thú vị và bổ ích. Đây không chỉ là nơi lưu trữ các bài tập đơn thuần, mà còn là cơ hội để tôi hệ thống hóa lại toàn bộ những kiến thức, kỹ năng số đã học được trong suốt học phần. Qua từng bước xây dựng nội dung và tối ưu hiển thị, tôi cảm nhận rõ sự tiến bộ của bản thân trong tư duy tổ chức thông tin và khả năng ứng dụng công nghệ vào thực tiễn.
+                        </p>
+                      </FlashlightCard>
+
+                      <FlashlightCard isDarkMode={isDarkMode} className="border-l-4 border-emerald-500">
+                        <h3 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                          <Code className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} /> Những Kiến thức & Kỹ năng quan trọng nhất
+                        </h3>
+                        <ul className={`leading-relaxed text-lg space-y-4 ${textBodyClass}`}>
+                          <li className="flex gap-3">
+                            <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
+                            <span><strong>Kỹ năng khai thác và sử dụng AI (Prompt Engineering):</strong> Học cách tối ưu hóa câu lệnh để giao tiếp và khai thác sức mạnh của các mô hình ngôn ngữ lớn như ChatGPT, Claude, Gemini.</span>
+                          </li>
+                          <li className="flex gap-3">
+                            <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
+                            <span><strong>Kỹ năng làm việc nhóm trực tuyến:</strong> Sử dụng thành thạo các công cụ cộng tác như Google Drive, Microsoft Planner, Google Docs để quản lý tiến độ, dữ liệu dự án hiệu quả.</span>
+                          </li>
+                          <li className="flex gap-3">
+                            <span className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}>✓</span>
+                            <span><strong>Tư duy Liêm chính học thuật:</strong> Nắm vững nguyên tắc đạo đức khi sử dụng AI, biết cách trích dẫn, khai báo nguồn và giữ lại cốt lõi tư duy của bản thân.</span>
+                          </li>
+                        </ul>
+                      </FlashlightCard>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <FlashlightCard isDarkMode={isDarkMode} className="border-t-4 border-yellow-500">
+                          <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                            <Award className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'} /> Điểm tâm đắc nhất
+                          </h3>
+                          <p className={`leading-relaxed ${textBodyClass}`}>
+                            Điều tôi tâm đắc nhất là việc vận dụng thành công các Framework (nhu C.R.E.A.T.E) trong việc tối ưu Prompt AI, điều này giúp tôi tiết kiệm được rất nhiều thời gian trong học tập và nghiên cứu. Bên cạnh đó, việc xây dựng được một Portfolio trực quan thế này giúp tôi cảm thấy tự hào về những nỗ lực đã bỏ ra.
+                          </p>
+                        </FlashlightCard>
+
+                        <FlashlightCard isDarkMode={isDarkMode} className="border-t-4 border-red-500">
+                          <h3 className={`text-xl font-bold mb-4 flex items-center gap-2 ${textMainClass}`}>
+                            <MessageSquare className={isDarkMode ? 'text-red-400' : 'text-red-600'} /> Thách thức gặp phải
+                          </h3>
+                          <p className={`leading-relaxed ${textBodyClass}`}>
+                            Thách thức lớn nhất trong quá trình xây dựng Portfolio là việc tổng hợp và định dạng lại khối lượng nội dung đồ sộ từ nhiều bài tập khác nhau sao cho khoa học, đồng bộ và thẩm mỹ. Ngoài ra, việc làm quen với các công cụ tạo lập Website/Portfolio cũng đòi hỏi sự kiên nhẫn tìm tòi trong những ngày đầu.
+                          </p>
+                        </FlashlightCard>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+          </div>
         )}
-      </button>
+
+        {/* REBOUND SHORTCUT ON DESKTOP IF CLOSED OR MINIMIZED */}
+        {(windowState === 'closed' || windowState === 'minimized') && (
+          <button 
+            onClick={() => setWindowState('open')}
+            className="flex flex-col items-center gap-2 p-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl backdrop-blur-md text-white transition-all transform hover:scale-105 active:scale-95 animate-window-open"
+          >
+            <Folder size={48} className="text-yellow-400" />
+            <span className="text-xs font-semibold">Mở Lại Cửa Sổ Portfolio</span>
+          </button>
+        )}
+      </div>
+
+      {/* PREMIUM DYNAMIC MAC-STYLE DOCK */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex items-center justify-center pointer-events-auto">
+        <div className={`flex items-end gap-3 px-4 py-2.5 rounded-2xl border backdrop-blur-2xl transition-all shadow-2xl ${
+          isDarkMode 
+            ? 'bg-neutral-900/60 border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.8)]' 
+            : 'bg-white/60 border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.2)]'
+        }`}>
+          {/* Dock Icon: About */}
+          <button 
+            onClick={() => { setActiveTab('about'); setSelectedProject(null); setWindowState('open'); }}
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:scale-125 hover:-translate-y-2 hover-bounce focus:outline-none ${
+              activeTab === 'about' && windowState === 'open' ? 'bg-blue-500 text-white' : 'bg-white/10'
+            }`}
+            title="Giới thiệu"
+          >
+            <User size={22} />
+          </button>
+
+          {/* Dock Icon: Projects */}
+          <button 
+            onClick={() => { setActiveTab('home'); setSelectedProject(null); setWindowState('open'); }}
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:scale-125 hover:-translate-y-2 hover-bounce focus:outline-none ${
+              (activeTab === 'home' || activeTab === 'project_detail') && windowState === 'open' ? 'bg-blue-500 text-white' : 'bg-white/10'
+            }`}
+            title="Dự án"
+          >
+            <Folder size={22} />
+          </button>
+
+          {/* Dock Icon: Summary */}
+          <button 
+            onClick={() => { setActiveTab('summary'); setSelectedProject(null); setWindowState('open'); }}
+            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:scale-125 hover:-translate-y-2 hover-bounce focus:outline-none ${
+              activeTab === 'summary' && windowState === 'open' ? 'bg-blue-500 text-white' : 'bg-white/10'
+            }`}
+            title="Tổng kết"
+          >
+            <Award size={22} />
+          </button>
+
+          <div className="w-[1px] h-8 bg-white/20 mx-1" />
+
+          {/* Dock Icon: Spotlight Search */}
+          <button 
+            onClick={() => setSpotlightOpen(true)}
+            className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center transition-all hover:scale-125 hover:-translate-y-2 hover-bounce focus:outline-none"
+            title="Tìm kiếm thông minh (⌘K)"
+          >
+            <Search size={22} className="text-blue-400" />
+          </button>
+
+          {/* Dock Icon: Control Center (Sliders) */}
+          <button 
+            onClick={() => setControlCenterOpen(!controlCenterOpen)}
+            className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center transition-all hover:scale-125 hover:-translate-y-2 hover-bounce focus:outline-none"
+            title="Trung tâm điều khiển"
+          >
+            <Sliders size={22} className="text-emerald-400" />
+          </button>
+
+          {/* Dock Icon: Theme Toggle */}
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center transition-all hover:scale-125 hover:-translate-y-2 hover-bounce focus:outline-none"
+            title={isDarkMode ? "Giao diện Sáng" : "Giao diện Tối"}
+          >
+            {isDarkMode ? <Sun size={22} className="text-yellow-400" /> : <Moon size={22} className="text-indigo-400" />}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
